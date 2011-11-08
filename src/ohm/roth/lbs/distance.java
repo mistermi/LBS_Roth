@@ -1,5 +1,7 @@
 package ohm.roth.lbs;
 
+import java.util.List;
+
 public class distance {
 	public static enum unit {
 		meter, km
@@ -44,6 +46,12 @@ public class distance {
         return dist;
     }
 	
-	
+	public static double listLength(List<Waypoint> list) {
+        double l = 0;
+        for (int i=1; i<list.size(); i++) {
+            l+=distance.calcDist(list.get(i-1), list.get(i%list.size()));
+        }
+        return l;
+    }
 
 }

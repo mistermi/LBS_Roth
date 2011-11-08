@@ -1,5 +1,3 @@
-
-
 import ohm.roth.lbs.*;
 
 import java.io.BufferedWriter;
@@ -14,6 +12,9 @@ import java.util.List;
 // 1-Result
 // 2-Result With Debug
 // 3-All
+
+
+//TODO: begenzte Open Liste
 
 public class AStarAlgorithm {
     protected double w;
@@ -31,10 +32,18 @@ public class AStarAlgorithm {
         this.debug = 0;
     }
 
-    public AStarResult search(NavGraph graph, Node source, Node target, String name)
-            throws IOException {
-        FileWriter fstream2 = new FileWriter("ROUTE2.TXT");
-        BufferedWriter out2 = new BufferedWriter(fstream2);
+    public AStarResult search(NavGraph graph, Node source, Node target, String name) throws IOException {
+        return search(graph, source, target, name, true);
+    }
+
+    public AStarResult search(NavGraph graph, Node source, Node target, String name, boolean buildExpanded) throws IOException {
+        BufferedWriter outExpanded = null;
+        FileWriter fstreamExpanded = null;
+        if (buildExpanded) {
+            fstreamExpanded = new FileWriter("Expanded Graph.txt");
+            outExpanded = new BufferedWriter(fstreamExpanded);
+        }
+
         long time;
         int expNodes = 1;
         int pathNodes = 0;
@@ -74,12 +83,13 @@ public class AStarAlgorithm {
                     AStarNode n = openSet.get(neighbor.getName());
                     if (n == null) {
                         // Node noch nicht in Open
-                        out2.write("LINE mode=1 col=0,0,255,75\n");
-                        out2.write(x.getNode().getPosition().getLon() + ","
+                        if (buildExpanded) {
+                        outExpanded.write("LINE mode=1 col=0,0,255,75\n");
+                        outExpanded.write(x.getNode().getPosition().getLon() + ","
                                 + x.getNode().getPosition().getLat() + "\n");
-                        out2.write(neighbor.getPosition().getLon() + ","
+                        outExpanded.write(neighbor.getPosition().getLon() + ","
                                 + neighbor.getPosition().getLat() + "\n");
-
+                        }
                         n = new AStarNode(neighbor);
                         n.setCameFrom(x);
                         n.setCostCameFrom(neighborEdge.getCost());
@@ -99,8 +109,6 @@ public class AStarAlgorithm {
 
             }
         }
-
-        out2.write("LINE mode=1 col=255,0,0,150 startflag=\"START X\" endflag=\"END\"\n");
         if (goal != null) {
             PathSegment retPath = new PathSegment();
             PathNode lastNode = new PathNode("TODO NodeNames", goal.getNode());
@@ -123,8 +131,10 @@ public class AStarAlgorithm {
                 pathNodes++;
             }
             retPath.setFirstNode(currNode);
-            out2.close();
-            fstream2.close();
+            if (buildExpanded) {
+                outExpanded.close();
+                fstreamExpanded.close();
+            }
             return new AStarResult((double) (System.currentTimeMillis() - time),
                     graph.getNodeList().size(),
                     expNodes,
@@ -134,9 +144,10 @@ public class AStarAlgorithm {
                     retPath);
 
         }
-
-        out2.close();
-        fstream2.close();
+        if (buildExpanded) {
+            outExpanded.close();
+            fstreamExpanded.close();
+        }
         return null;
     }
 

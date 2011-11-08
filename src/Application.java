@@ -335,6 +335,7 @@ public class Application {
             } catch (IOException e) {
                 System.out.println("Error writing GPX File");
             }
+            System.out.println("Path length: " + distance.listLength(orderdWaypoints));
             System.out.println(currTSP + " took " + time_tsp + " Secs");
             System.out.println();
         }

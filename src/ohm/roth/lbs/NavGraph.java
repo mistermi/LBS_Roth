@@ -89,6 +89,8 @@ public class NavGraph implements Serializable {
 		this.edgeList = edgeList;
 	}
 
+    //TODO: findClosest überarbeiten (zur not Nodes einführen)
+
 	public Node findClosest(Position p) {
 		double dis = 999999999;
 		Node closest = null;
