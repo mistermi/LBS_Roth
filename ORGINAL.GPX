@@ -1,0 +1,31 @@
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="test2" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata>
+<name>FOO</name>
+</metadata>
+<trk>
+<name>ORGINAL</name>
+<trkseg>
+<trkpt lat="49.45531667" lon="11.07643667">
+<name>f390e886-1905-4bae-a8fc-423426749483</name>
+</trkpt>
+<trkpt lat="49.45407" lon="11.07822167">
+<name>2244f6eb-f32e-4870-ac04-8e1403e49d4d</name>
+</trkpt>
+<trkpt lat="49.45712667" lon="11.07395">
+<name>87009b08-3480-4889-beba-126f3f449aae</name>
+</trkpt>
+<trkpt lat="49.45767333" lon="11.076545">
+<name>a643a446-b75d-4a01-a4c7-ee15e90bc67c</name>
+</trkpt>
+<trkpt lat="49.45381667" lon="11.07327667">
+<name>af6c04ca-7e20-43fc-9acc-61ea00e4d46f</name>
+</trkpt>
+<trkpt lat="49.45384833" lon="11.07734167">
+<name>f723f5be-3886-4992-99f4-28f3bad0ccef</name>
+</trkpt>
+<trkpt lat="49.45531667" lon="11.07643667">
+<name>b735f1c2-6a50-4eb2-b443-c83a0af03db2</name>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>

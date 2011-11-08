@@ -1,0 +1,28 @@
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="test2" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata>
+<name>FOO</name>
+</metadata>
+<trk>
+<name>CLOSEST_NEIGHBOR</name>
+<trkseg>
+<trkpt lat="49.45384833" lon="11.07734167">
+<name>69d0078e-7a97-45f8-aef2-7c67f92f8f6c</name>
+</trkpt>
+<trkpt lat="49.45407" lon="11.07822167">
+<name>92565eae-e386-49be-ae71-c7aa4d6cb1ea</name>
+</trkpt>
+<trkpt lat="49.45767333" lon="11.076545">
+<name>730c4f09-5961-4119-a25a-aef1fdb2b04c</name>
+</trkpt>
+<trkpt lat="49.45712667" lon="11.07395">
+<name>f99c942d-a757-4c8f-a223-0fd5b47a4c5e</name>
+</trkpt>
+<trkpt lat="49.45381667" lon="11.07327667">
+<name>096bc121-d3b7-4f5d-8b1f-d4bf3a095a3c</name>
+</trkpt>
+<trkpt lat="49.45384833" lon="11.07734167">
+<name>37120cec-64bc-4d98-bdda-4ac00b9d33a7</name>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>

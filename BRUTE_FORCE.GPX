@@ -1,0 +1,34 @@
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="test2" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata>
+<name>FOO</name>
+</metadata>
+<trk>
+<name>BRUTE_FORCE</name>
+<trkseg>
+<trkpt lat="49.45531667" lon="11.07643667">
+<name>ebaf54c6-b198-4941-853a-1aa047e68cda</name>
+</trkpt>
+<trkpt lat="49.45767333" lon="11.076545">
+<name>f637e87c-6cab-4526-a96a-5fcd33fe291a</name>
+</trkpt>
+<trkpt lat="49.45712667" lon="11.07395">
+<name>19a60e76-acdf-4477-b104-3754a1234e6d</name>
+</trkpt>
+<trkpt lat="49.45381667" lon="11.07327667">
+<name>9921a5dd-a7b0-4b6d-9a02-e444a4007273</name>
+</trkpt>
+<trkpt lat="49.45384833" lon="11.07734167">
+<name>02e1274e-b515-48c8-9546-083ac48e12e7</name>
+</trkpt>
+<trkpt lat="49.45407" lon="11.07822167">
+<name>c1f108e9-4f8a-40d5-9454-5e359e0330eb</name>
+</trkpt>
+<trkpt lat="49.45531667" lon="11.07643667">
+<name>c61f7c5f-52f0-4e37-a67e-b4072c364712</name>
+</trkpt>
+<trkpt lat="49.45531667" lon="11.07643667">
+<name>4cc6127d-9790-47c6-8435-14e9d5c9a209</name>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>
