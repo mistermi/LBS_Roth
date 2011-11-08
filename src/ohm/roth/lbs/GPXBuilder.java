@@ -64,14 +64,13 @@ public class GPXBuilder {
                 Element trackSegment = doc.createElement("trkseg");
                 track.appendChild(trackSegment);
                 PathNode currNode = segment.getFirstNode();
-                DecimalFormat f = new DecimalFormat("#0.000000000");
                 while (currNode != null) {
                     Element trackPoint = doc.createElement("trkpt");
                     trackname = doc.createElement("name");
                     trackname.appendChild(doc.createTextNode(UUID.randomUUID().toString()));
                     trackPoint.appendChild(trackname);
-                    trackPoint.setAttribute("lat", f.format(currNode.getNode().getPosition().getLat()));
-                    trackPoint.setAttribute("lon", f.format(-currNode.getNode().getPosition().getLon()));
+                    trackPoint.setAttribute("lat", Double.toString(currNode.getNode().getPosition().getLat()));
+                    trackPoint.setAttribute("lon", Double.toString(-currNode.getNode().getPosition().getLon()));
                     trackSegment.appendChild(trackPoint);
 
                     currNode = currNode.getNextNode();
