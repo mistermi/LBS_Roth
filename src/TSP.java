@@ -67,11 +67,6 @@ public class TSP {
 	}
 
     private void testPath(List<Waypoint> best, List<Waypoint> source, List<Waypoint> curr, Waypoint start) {
-        // neuer kompletter pfad
-        if (curr.size() == (source.size())) {
-            System.out.println(distance.listLength(curr));
-        }
-
         if (curr.size() == (source.size() + 1) && best.size() != (source.size() + 1)) {
             best.addAll(curr);
             return;
@@ -89,8 +84,10 @@ public class TSP {
 
         for (Waypoint currWaypoint : source) {
             if (curr.contains(currWaypoint)) { continue; }
-            curr.add(currWaypoint);
-            testPath(best, source, curr, start);
+            List<Waypoint> newCurr = new ArrayList<Waypoint>();
+            newCurr.addAll(curr);
+            newCurr.add(currWaypoint);
+            testPath(best, source, newCurr, start);
         }
     }
 

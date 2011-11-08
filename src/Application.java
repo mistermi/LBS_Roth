@@ -149,7 +149,7 @@ public class Application {
         if (waypoints.size() > 2) {
             double time_tsp = System.currentTimeMillis();
             System.out.println("Running TSP with " + (waypoints.size()) + " Points");
-            TSP tsp = new TSP(TSP.tspType.CLOSEST_NEIGHBOR);
+            TSP tsp = new TSP(TSP.tspType.BRUTE_FORCE);
             orderdWaypoints = tsp.sort(waypoints);
             time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
             System.out.println("TSP took " + time_tsp + " Secs");
