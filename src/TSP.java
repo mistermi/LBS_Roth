@@ -7,6 +7,7 @@ import java.util.List;
 // Klasse f�r das Traveling Salesman Problem
 public class TSP {
     public static enum tspType {
+        ORGINAL,
 		CLOSEST_NEIGHBOR
 	}
 	private tspType selectedType;
@@ -28,6 +29,8 @@ public class TSP {
 		switch (this.selectedType) {
 		case CLOSEST_NEIGHBOR:
 			return this.closestNeighbor(places);
+        case ORGINAL:
+			return places;
 		default:
 			return null;
 		}
@@ -36,7 +39,7 @@ public class TSP {
     private List<Waypoint> closestNeighbor(List<Waypoint> places) {
 		List<Waypoint> orderdPlaces = new ArrayList<Waypoint>();
 		Waypoint curr = places.get(0);
-		Waypoint candy = null;
+		Waypoint candy;
 		places.remove(0);
 		do {
 			candy = null;

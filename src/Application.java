@@ -20,7 +20,6 @@ public class Application {
     private String dbpasswd = "dbuser";
     private String dbname = "deproDBMittelfranken";
     private String graphname = "NBG";
-    private int debug = 2;
 
     public Application(String dbhost, int dbport, String dbuser, String dbpasswd, String dbname, String graphname, int debug) {
         this.dbhost = dbhost;
@@ -29,7 +28,6 @@ public class Application {
         this.dbpasswd = dbpasswd;
         this.dbname = dbname;
         this.graphname = graphname;
-        this.debug = debug;
         graph = new NavGraph();
         scan = new Scanner(System.in);
 
@@ -130,7 +128,6 @@ public class Application {
             }
         }
         while (!quit);
-        return;
     }
 
     public void findPath(String filename, double w, int debug, String name) {
@@ -147,14 +144,14 @@ public class Application {
         }
         if (waypoints.size() == 0) return;
         AStarAlgorithm astar = new AStarAlgorithm(w, debug);
-        List<Waypoint> orderdWaypoints = new ArrayList<Waypoint>();
+        List<Waypoint> orderdWaypoints;
         // Rundweg
         if (waypoints.size() > 2) {
             double time_tsp = System.currentTimeMillis();
             System.out.println("Running TSP with " + (waypoints.size()) + " Points");
             TSP tsp = new TSP(TSP.tspType.CLOSEST_NEIGHBOR);
             orderdWaypoints = tsp.sort(waypoints);
-            time_tsp = (double) (System.currentTimeMillis() - time_tsp) / 1000;
+            time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
             System.out.println("TSP took " + time_tsp + " Secs");
         } else {
             orderdWaypoints = waypoints;
@@ -195,7 +192,7 @@ public class Application {
                 System.exit(1);
             }
         }
-        time_astar = (double) (System.currentTimeMillis() - time_astar) / 1000;
+        time_astar = (System.currentTimeMillis() - time_astar) / 1000;
         System.out.println();
         System.out.println("A-Star took " + time_astar + " Secs");
         System.out.println("Global Length: " + globalLength + " Meter");
@@ -205,7 +202,7 @@ public class Application {
             out.write(GPXBuilder.build("", path));
             out.close();
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            System.out.println("Error writing GPX file");
         }
     }
 
@@ -250,7 +247,6 @@ public class Application {
             }
         }
         while (!quit);
-        return;
     }
 
     public void compareAStarW(NavGraph graph, List<Position> places, double start, double end, double step) {
@@ -329,7 +325,16 @@ public class Application {
             System.out.println("Running " + currTSP + " with " + (waypoints.size()) + " Points");
             TSP tsp = new TSP(currTSP);
             orderdWaypoints = tsp.sort(waypoints);
-            time_tsp = (double) (System.currentTimeMillis() - time_tsp) / 1000;
+            time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
+            FileWriter fstream;
+            try {
+                fstream = new FileWriter(currTSP.toString() + ".GPX");
+                BufferedWriter out = new BufferedWriter(fstream);
+                out.write(GPXBuilder.build("", orderdWaypoints, currTSP.toString()));
+                out.close();
+            } catch (IOException e) {
+                System.out.println("Error writing GPX File");
+            }
             System.out.println(currTSP + " took " + time_tsp + " Secs");
             System.out.println();
         }
@@ -367,7 +372,6 @@ public class Application {
             }
         }
         while (!quit);
-        return;
     }
 
     public void graphInfo() {
@@ -444,7 +448,7 @@ public class Application {
             }
             obj_in.close();
             fis.close();
-            time_graph = (double) (System.currentTimeMillis() - time_graph) / 1000;
+            time_graph = (System.currentTimeMillis() - time_graph) / 1000;
             System.out.println("Fetching Data and building graph took: " + time_graph + "sec");
             System.out.println("============================================================");
         } catch (Exception e) {
@@ -476,7 +480,7 @@ public class Application {
             out2.writeObject(graph);
             out2.close();
             fos.close();
-            time_graph = (double) (System.currentTimeMillis() - time_graph) / 1000;
+            time_graph = (System.currentTimeMillis() - time_graph) / 1000;
             System.out.println("Fetching Data and building graph took: " + time_graph + "sec");
             System.out.println("============================================================");
         } catch (Exception e) {
