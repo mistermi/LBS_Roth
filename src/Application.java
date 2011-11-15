@@ -11,7 +11,6 @@ import java.util.Scanner;
  * Time: 11:51
  */
 public class Application {
-
     private Scanner scan = new Scanner(System.in);
     private NavGraph graph = new NavGraph();
     private String dbhost = "geo.informatik.fh-nuernberg.de";
@@ -94,7 +93,6 @@ public class Application {
 
 
     }
-
 
     // Pfad generator
     public void pathMenu() {
@@ -432,7 +430,6 @@ public class Application {
         }
         while (!quit);
     }
-
 
     // Graph loader
     public void loadGraph_File(String filename) {
