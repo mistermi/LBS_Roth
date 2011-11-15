@@ -20,6 +20,7 @@ public class Application {
     private String dbpasswd = "dbuser";
     private String dbname = "deproDBMittelfranken";
     private String graphname = "NBG";
+    private TSP.tspType defaultTspType = TSP.tspType.GENETIC_QUICK;
 
     public Application(String dbhost, int dbport, String dbuser, String dbpasswd, String dbname, String graphname, int debug) {
         this.dbhost = dbhost;
@@ -30,7 +31,6 @@ public class Application {
         this.graphname = graphname;
         graph = new NavGraph();
         scan = new Scanner(System.in);
-
     }
 
     public void mainMenu() {
@@ -98,7 +98,7 @@ public class Application {
 
     // Pfad generator
     public void pathMenu() {
-    boolean quit = false;
+        boolean quit = false;
         do {
             System.out.println("==================================================");
             System.out.println("Building Path Menu");
@@ -149,8 +149,7 @@ public class Application {
         if (waypoints.size() > 2) {
             double time_tsp = System.currentTimeMillis();
             System.out.println("Running TSP with " + (waypoints.size()) + " Points");
-            TSP tsp = new TSP(TSP.tspType.BRUTE_FORCE);
-            orderdWaypoints = tsp.sort(waypoints);
+            orderdWaypoints = TSP.sort(waypoints, defaultTspType);
             time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
             System.out.println("TSP took " + time_tsp + " Secs");
         } else {
@@ -164,7 +163,7 @@ public class Application {
         if (orderdWaypoints.size() > 2) {
             // A Stern im Rundweg
             try {
-                for (int i = 0; i <= orderdWaypoints.size()-1; i++) {
+                for (int i = 0; i <= orderdWaypoints.size() - 1; i++) {
                     Node start = graph.findClosest(orderdWaypoints.get(i));
                     Node end = graph.findClosest(orderdWaypoints.get((i + 1) % (orderdWaypoints.size())));
                     AStarAlgorithm.AStarResult result = astar.search(graph, start, end, "F00");
@@ -323,28 +322,32 @@ public class Application {
         for (TSP.tspType currTSP : TSP.tspType.values()) {
             double time_tsp = System.currentTimeMillis();
             System.out.println("Running " + currTSP + " with " + (waypoints.size()) + " Points");
-            TSP tsp = new TSP(currTSP);
-            orderdWaypoints = tsp.sort(waypoints);
-            time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
-            FileWriter fstream;
             try {
-                fstream = new FileWriter(currTSP.toString() + ".GPX");
-                BufferedWriter out = new BufferedWriter(fstream);
-                out.write(GPXBuilder.build("", orderdWaypoints, currTSP.toString()));
-                out.close();
-            } catch (IOException e) {
-                System.out.println("Error writing GPX File");
+                orderdWaypoints = TSP.sort(waypoints, currTSP);
+                time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
+                FileWriter fstream;
+                try {
+                    fstream = new FileWriter(currTSP.toString() + ".GPX");
+                    BufferedWriter out = new BufferedWriter(fstream);
+                    out.write(GPXBuilder.build("", orderdWaypoints, currTSP.toString()));
+                    out.close();
+                } catch (IOException e) {
+                    System.out.println("Error writing GPX File");
+                }
+                System.out.println("Path length: " + distance.listLength(orderdWaypoints));
+                System.out.println(currTSP + " took " + time_tsp + " Secs");
+                System.out.println();
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                System.out.println();
             }
-            System.out.println("Path length: " + distance.listLength(orderdWaypoints));
-            System.out.println(currTSP + " took " + time_tsp + " Secs");
-            System.out.println();
         }
         System.out.println();
     }
 
     // Graph Optionen
     public void graphMenu() {
-    boolean quit = false;
+        boolean quit = false;
         do {
             System.out.println("==================================================");
             System.out.println("Graph Options");

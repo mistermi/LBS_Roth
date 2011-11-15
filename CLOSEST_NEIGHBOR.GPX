@@ -6,22 +6,43 @@
 <name>CLOSEST_NEIGHBOR</name>
 <trkseg>
 <trkpt lat="49.45384833" lon="11.07734167">
-<name>69d0078e-7a97-45f8-aef2-7c67f92f8f6c</name>
+<name>bb53f568-79f2-4ac7-8e07-cd84d6ac3953</name>
 </trkpt>
 <trkpt lat="49.45407" lon="11.07822167">
-<name>92565eae-e386-49be-ae71-c7aa4d6cb1ea</name>
+<name>74023392-a41d-4048-bc8f-f6d92dc0d4b9</name>
 </trkpt>
 <trkpt lat="49.45767333" lon="11.076545">
-<name>730c4f09-5961-4119-a25a-aef1fdb2b04c</name>
+<name>7c26a539-dd33-49ec-864c-b9dcf4fe9132</name>
 </trkpt>
 <trkpt lat="49.45712667" lon="11.07395">
-<name>f99c942d-a757-4c8f-a223-0fd5b47a4c5e</name>
+<name>6dc0fece-c41a-4067-90de-219b43ca8bc0</name>
+</trkpt>
+<trkpt lat="49.45281167" lon="11.07682">
+<name>c38c3c77-6c6e-42c7-843f-25f742bdb9d9</name>
 </trkpt>
 <trkpt lat="49.45381667" lon="11.07327667">
-<name>096bc121-d3b7-4f5d-8b1f-d4bf3a095a3c</name>
+<name>428544a7-20bf-4652-9353-56b68d2806f0</name>
+</trkpt>
+<trkpt lat="49.45303" lon="11.07296667">
+<name>3ae97e11-e36c-4529-b2be-09ab2fedea1a</name>
+</trkpt>
+<trkpt lat="49.45617667" lon="11.07152333">
+<name>34e38142-a24b-4097-81cd-2a19faa9d35a</name>
+</trkpt>
+<trkpt lat="49.45849" lon="11.07482667">
+<name>644262f6-4d17-41a5-9cc9-c30eb92cae2d</name>
+</trkpt>
+<trkpt lat="49.45416" lon="11.07088167">
+<name>0a03250c-f7ff-4bda-afc0-b3f4a60887a8</name>
+</trkpt>
+<trkpt lat="49.45099333" lon="11.07872833">
+<name>f9c7d6fd-f938-4e3e-9181-3758f644e111</name>
+</trkpt>
+<trkpt lat="49.44784167" lon="11.07534833">
+<name>518d3a3f-452f-4564-b5f9-5768fd3f9ad9</name>
 </trkpt>
 <trkpt lat="49.45384833" lon="11.07734167">
-<name>37120cec-64bc-4d98-bdda-4ac00b9d33a7</name>
+<name>49480eb3-f423-431a-b33b-5a4d72165b8a</name>
 </trkpt>
 </trkseg>
 </trk>
