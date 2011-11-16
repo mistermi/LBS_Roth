@@ -3,7 +3,11 @@ package ohm.roth.lbs;
 import java.util.List;
 
 public class distance {
-	public static enum unit {
+    public static double calcDist(Node n, Position p) {
+         return distFrom(n.getPosition().getLat(), n.getPosition().getLon(), p.getLat(), p.getLon());
+    }
+
+    public static enum unit {
 		meter, km
 	}
 

@@ -162,8 +162,8 @@ public class Application {
             // A Stern im Rundweg
             try {
                 for (int i = 0; i <= orderdWaypoints.size() - 1; i++) {
-                    Node start = graph.findClosest(orderdWaypoints.get(i));
-                    Node end = graph.findClosest(orderdWaypoints.get((i + 1) % (orderdWaypoints.size())));
+                    Node start = graph.findClosest2(orderdWaypoints.get(i));
+                    Node end = graph.findClosest2(orderdWaypoints.get((i + 1) % (orderdWaypoints.size())));
                     AStarAlgorithm.AStarResult result = astar.search(graph, start, end, "F00");
                     result.print();
                     globalLength += result.getLength();

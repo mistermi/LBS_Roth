@@ -9,10 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// Klasse f�r das Traveling Salesman Problem
-// TODO: BruteForce
-// TODO: Optimierte Brute Force
-
 public class TSP {
     public static enum tspType {
         GENETIC_QUICK,
