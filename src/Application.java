@@ -19,7 +19,7 @@ public class Application {
     private String dbpasswd = "dbuser";
     private String dbname = "deproDBMittelfranken";
     private String graphname = "NBG";
-    private TSP.tspType defaultTspType = TSP.tspType.GENETIC_QUICK;
+    private TSP.tspType defaultTspType = TSP.tspType.GENETIC_GOOD;
 
     public Application(String dbhost, int dbport, String dbuser, String dbpasswd, String dbname, String graphname, int debug) {
         this.dbhost = dbhost;
@@ -115,8 +115,8 @@ public class Application {
                     System.out.print("Filename: ");
                     String filename = scan.next();
                     System.out.print("W: ");
-                    int w = scan.nextInt();
-                    findPath(filename, w, 1, name);
+                    double w = scan.nextDouble();
+                    findPath(filename, 0.5, 1, name);
                     break;
                 case 0:
                     quit = true;
@@ -143,6 +143,8 @@ public class Application {
         if (waypoints.size() == 0) return;
         AStarAlgorithm astar = new AStarAlgorithm(w, debug);
         List<Waypoint> orderdWaypoints;
+
+
         // Rundweg
         if (waypoints.size() > 2) {
             double time_tsp = System.currentTimeMillis();
@@ -153,6 +155,17 @@ public class Application {
         } else {
             orderdWaypoints = waypoints;
         }
+
+        try {
+            FileWriter fstream = new FileWriter(name + "-TSP.GPX");
+            BufferedWriter out = new BufferedWriter(fstream);
+            out.write(GPXBuilder.build("", orderdWaypoints, ""));
+            out.close();
+        } catch (IOException e) {
+            System.out.println("Error writing GPX file");
+        }
+
+
         // A-Stern
         double globalLength = 0;
         Path path = new Path(name);
@@ -164,7 +177,7 @@ public class Application {
                 for (int i = 0; i <= orderdWaypoints.size() - 1; i++) {
                     Node start = graph.findClosest2(orderdWaypoints.get(i));
                     Node end = graph.findClosest2(orderdWaypoints.get((i + 1) % (orderdWaypoints.size())));
-                    AStarAlgorithm.AStarResult result = astar.search(graph, start, end, "F00");
+                    AStarAlgorithm.AStarResult result = astar.search(graph, start, end, orderdWaypoints.get(i).getName()+" - "+orderdWaypoints.get((i + 1) % (orderdWaypoints.size())).getName());
                     result.print();
                     globalLength += result.getLength();
                     path.addSegment(result.getPath());
@@ -178,7 +191,7 @@ public class Application {
             try {
                 Node start = graph.findClosest(orderdWaypoints.get(0));
                 Node end = graph.findClosest(orderdWaypoints.get(1));
-                AStarAlgorithm.AStarResult result = astar.search(graph, start, end, "F00");
+                AStarAlgorithm.AStarResult result = astar.search(graph, start, end, orderdWaypoints.get(0).getName()+" - "+orderdWaypoints.get(1).getName());
                 result.print();
                 globalLength += result.getLength();
                 path.addSegment(result.getPath());
@@ -194,7 +207,7 @@ public class Application {
         System.out.println("A-Star took " + time_astar + " Secs");
         System.out.println("Global Length: " + globalLength + " Meter");
         try {
-            FileWriter fstream = new FileWriter(name + ".GPX");
+            FileWriter fstream = new FileWriter(name + "-Topo.GPX");
             BufferedWriter out = new BufferedWriter(fstream);
             out.write(GPXBuilder.build("", path));
             out.close();
@@ -307,7 +320,7 @@ public class Application {
         List<Waypoint> waypoints;
         List<Waypoint> orderdWaypoints;
         try {
-            waypoints = CSVParse.readWaypointList("TSPTEST.csv");
+            waypoints = CSVParse.readWaypointList("01.csv");
         } catch (Exception e) {
             e.printStackTrace();
             return;

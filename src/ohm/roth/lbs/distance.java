@@ -47,6 +47,10 @@ public class distance {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double dist = earthRadius * c;
 
+        System.out.println(lat1 + ", " + lng1);
+        System.out.println(lat2 + ", " + lng2);
+        System.out.println(dist);
+
         return dist;
     }
 	

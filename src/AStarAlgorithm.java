@@ -40,7 +40,7 @@ public class AStarAlgorithm {
         BufferedWriter outExpanded = null;
         FileWriter fstreamExpanded = null;
         if (buildExpanded) {
-            fstreamExpanded = new FileWriter("Expanded Graph.txt");
+            fstreamExpanded = new FileWriter("Expanded Graph - " + name + ".txt");
             outExpanded = new BufferedWriter(fstreamExpanded);
         }
 
@@ -63,20 +63,13 @@ public class AStarAlgorithm {
                 goal = x;
                 break;
             } else {
-                if (this.debug >= 3) {
-                    System.out.println("Search for node " + x.getName());
-                }
                 closeSet.put(x.getName(), x);
                 expNodes++;
                 List<Edge> neighborsEdges = x.getNode().getNeighbors();
                 for (Edge neighborEdge : neighborsEdges) {
                     Node neighbor = graph.getNode(neighborEdge.getTo());
-
-
                     if (closeSet.containsKey(neighbor.getName()))
                         continue;
-
-
                     double g = x.getG() + neighborEdge.getCost();
                     double h = distance.calcDist(neighbor, target) * this.w;
                     double f = g + h;
@@ -84,10 +77,10 @@ public class AStarAlgorithm {
                     if (n == null) {
                         // Node noch nicht in Open
                         if (buildExpanded) {
-                        outExpanded.write("LINE mode=1 col=0,0,255,75\n");
-                        outExpanded.write(x.getNode().getPosition().getLon() + ","
+                            outExpanded.write("LINE mode=1 col=0,0,255,75\n");
+                            outExpanded.write(x.getNode().getPosition().getLon() + ","
                                 + x.getNode().getPosition().getLat() + "\n");
-                        outExpanded.write(neighbor.getPosition().getLon() + ","
+                            outExpanded.write(neighbor.getPosition().getLon() + ","
                                 + neighbor.getPosition().getLat() + "\n");
                         }
                         n = new AStarNode(neighbor);
@@ -141,7 +134,8 @@ public class AStarAlgorithm {
                     pathNodes,
                     w,
                     length,
-                    retPath);
+                    retPath,
+                    name);
 
         }
         if (buildExpanded) {
@@ -248,6 +242,7 @@ public class AStarAlgorithm {
     }
 
     static class AStarResult {
+        protected String name;
         protected double runtime;
         protected int nodes;
         protected int expandedNodes;
@@ -256,7 +251,8 @@ public class AStarAlgorithm {
         protected double length;
         protected PathSegment segment;
 
-        AStarResult(double runtime, int nodes, int expandedNodes, int pathNodes, double w, double length, PathSegment segment) {
+        AStarResult(double runtime, int nodes, int expandedNodes, int pathNodes, double w, double length, PathSegment segment, String n) {
+            this.name = n;
             this.runtime = runtime;
             this.nodes = nodes;
             this.expandedNodes = expandedNodes;
@@ -264,6 +260,14 @@ public class AStarAlgorithm {
             this.w = w;
             this.length = length;
             this.segment = segment;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setName(String n) {
+            this.name = n;
         }
 
         public double getRuntime() {
@@ -292,6 +296,7 @@ public class AStarAlgorithm {
 
         public void print() {
             System.out.println();
+            System.out.println("Result for A-Stern: " + this.name);
             System.out.println("Length: " + this.length + " Meter");
             System.out
                     .println("Nodes in Path: "

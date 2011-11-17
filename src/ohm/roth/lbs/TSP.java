@@ -119,7 +119,7 @@ public class TSP {
     }
 
     static private List<Waypoint> geneticAlgoGood(List<Waypoint> places) {
-        return geneticAlgoPara(places, 30, 1000, 0);
+        return geneticAlgoPara(places, 100, 10000, 0);
     }
 
     static private List<Waypoint> geneticAlgoPara(List<Waypoint> places, int populationSize, int generations, int randomMutations) {

@@ -233,11 +233,24 @@ public class GPXBuilder {
             trackname.appendChild(doc.createTextNode("FOO"));
             track.appendChild(trackname);
 
-            Element trackSegment = doc.createElement("trkseg");
-            track.appendChild(trackSegment);
+
             Element trackPoint;
             ArrayList<String> visitedNodes = new ArrayList<String>();
             for (Edge currNode : graph.getEdgeList()) {
+
+                if (graph.getNode(currNode.getTo()).getPosition().getLat() > 49.49452 ||
+                    graph.getNode(currNode.getTo()).getPosition().getLat() < 49.44930 ||
+                    -graph.getNode(currNode.getTo()).getPosition().getLon() < 11.07744 ||
+                    -graph.getNode(currNode.getTo()).getPosition().getLon() > 11.082 ||
+                    graph.getNode(currNode.getFrom()).getPosition().getLat() > 49.49452 ||
+                    graph.getNode(currNode.getFrom()).getPosition().getLat() < 49.44930 ||
+                    -graph.getNode(currNode.getFrom()).getPosition().getLon() < 11.07744 ||
+                    -graph.getNode(currNode.getFrom()).getPosition().getLon() > 11.082) {
+                    continue;
+                }
+                Element trackSegment = doc.createElement("trkseg");
+                track.appendChild(trackSegment);
+
                 trackPoint = doc.createElement("trkpt");
                 trackPoint.setAttribute("lat", Double.toString(
                         graph.getNode(currNode.getFrom()).getPosition().getLat()
