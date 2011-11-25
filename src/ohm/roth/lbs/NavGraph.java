@@ -112,6 +112,7 @@ public class NavGraph implements Serializable {
         Edge bEdge = null;
 
         for (Edge edge : this.edgeList) {
+            //TODO: Abstand auf Geometry
             Node nodeTo = this.nodeList.get(edge.getTo());
             Node nodeFrom = this.nodeList.get(edge.getFrom());
             if (nodeTo.getPosition().getLat() == p.getLat() && nodeTo.getPosition().getLon() == p.getLon()) return nodeTo;

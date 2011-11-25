@@ -112,7 +112,6 @@ public class geoDatabaseConnection {
 					+ "from_cross.id = link.crossing_id_from AND "
 					+ "to_cross.id = link.crossing_id_to AND "
 					+ "dom.gao_id = link.gao_id AND "
-                    + "dom.geometry = 'L' AND "
 					+ "from_cross.gao_id = dom.gao_id AND to_cross.gao_id = dom.gao_id "
 					+ "ORDER BY link.id";
 			return statement.executeQuery(Query);
