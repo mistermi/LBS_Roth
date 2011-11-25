@@ -14,7 +14,7 @@ public class LBS_Roth {
 
         //System.out.println(ohm.roth.ohm.roth.lbs.distance.calcDist(new Position(-11.07043531536262,49.45043799363943), new Position(-11.0754185442121,49.45185742264561)));
 
-        Application app = new Application(dbhost,dbport,dbuser,dbpasswd,dbname,"NBG2",2);
+        Application app = new Application(dbhost,dbport,dbuser,dbpasswd,dbname,"NBG",2);
         app.mainMenu();
     }
 

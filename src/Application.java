@@ -18,7 +18,7 @@ public class Application {
     private String dbuser = "dbuser";
     private String dbpasswd = "dbuser";
     private String dbname = "deproDBMittelfranken";
-    private String graphname = "NBG2";
+    private String graphname = "NBG";
     private TSP.tspType defaultTspType = TSP.tspType.GENETIC_GOOD;
 
     public Application(String dbhost, int dbport, String dbuser, String dbpasswd, String dbname, String graphname, int debug) {

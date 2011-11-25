@@ -8,6 +8,9 @@ import java.util.List;
  * Date: 25.10.11
  * Time: 19:39
  */
+
+//TODO: Ausgabe mit Geometry
+//TODO: Ausgaben indem schönen und schnellen Programm
 public class Path {
     protected String name;
     protected List<PathSegment> segments;

@@ -6,15 +6,6 @@ import java.io.IOException;
 import java.util.List;
 
 // A-Star
-//
-// Debug
-// 0-Off
-// 1-Result
-// 2-Result With Debug
-// 3-All
-
-
-//TODO: begenzte Open Liste
 
 public class AStarAlgorithm {
     protected double w;
@@ -88,14 +79,14 @@ public class AStarAlgorithm {
                         n.setCostCameFrom(neighborEdge.getCost());
                         n.setCameFromEdge(neighborEdge);
                         n.setG(g);
-                        n.setH(h);
-
+                        n.setF(f);
                         openSet.put(neighbor.getName(), n);
-                    } else if (f < n.getG() + f) {
+                    } else if (f < n.getF()) {
                         // Node in open aber "neuer" Weg ist kuerzer
                         n.setCameFrom(x);
                         n.setCostCameFrom(neighborEdge.getCost());
                         n.setCameFromEdge(neighborEdge);
+                        n.setF(f);
                         n.setG(g);
                     }
                 }
@@ -154,6 +145,7 @@ public class AStarAlgorithm {
         private Edge cameFromEdge;
         private double costCameFrom;
         private double g;
+        private double f;
         // Distance from source along optimal path
 
         // Heuristic estimate of distance from the current node to the target node
@@ -172,8 +164,12 @@ public class AStarAlgorithm {
             this.cameFromEdge = cameFromEdge;
         }
 
+        public void setF(double f) {
+            this.f = f;
+        }
+
         public double getF() {
-            return this.g + this.h;
+            return this.f;
         }
 
         public Node getNode() {

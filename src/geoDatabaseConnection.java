@@ -116,7 +116,6 @@ public class geoDatabaseConnection {
 					+ "ORDER BY link.id";
 			return statement.executeQuery(Query);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         return null;
@@ -139,7 +138,6 @@ public class geoDatabaseConnection {
             try {
                 geom= (LineString) SQL.wkb2Geometry(geodata_line);
             } catch (ParseException e) {
-                //TODO: Fehler behandlung wenn Linien Objekt nicht erstellt werden kann
                 geom=null;
             }
             double meter = (double) resultSet.getDouble(4);
