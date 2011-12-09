@@ -1,6 +1,7 @@
 package ohm.roth.lbs;
 
 
+import com.vividsolutions.jts.geom.Coordinate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -11,10 +12,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +39,10 @@ public class GPXBuilder {
 
             ////////////////////////
             //Creating the XML tree
-
+            FileOutputStream fos = null;
+            fos = new FileOutputStream("tmppath.txt");
+            OutputStreamWriter out2 = new OutputStreamWriter(fos);
+            out2.write("LINE mode=1 col=0,0,255,75\n");
             //create the root element and add it to the document
             Element root = doc.createElement("gpx");
             root.setAttribute("version", "1.1");
@@ -68,18 +72,26 @@ public class GPXBuilder {
                 track.appendChild(trackSegment);
                 PathNode currNode = segment.getFirstNode();
                 while (currNode != null) {
-                    Element trackPoint = doc.createElement("trkpt");
-                    trackname = doc.createElement("name");
-                    trackname.appendChild(doc.createTextNode(UUID.randomUUID().toString()));
-                    trackPoint.appendChild(trackname);
-                    trackPoint.setAttribute("lat", Double.toString(currNode.getNode().getPosition().getLat()));
-                    trackPoint.setAttribute("lon", Double.toString(-currNode.getNode().getPosition().getLon()));
-                    trackSegment.appendChild(trackPoint);
+                    if (currNode.getNextEdge() != null) {
+                    Edge e = currNode.getNextEdge();
+                    for (Coordinate coord : currNode.getNextEdge().getEdgeGeo().getCoordinates()) {
+                        out2.write(coord.x + "," + coord.y + "\n");
+                        Element trackPoint = doc.createElement("trkpt");
+                        trackname = doc.createElement("name");
+                        trackname.appendChild(doc.createTextNode(UUID.randomUUID().toString()));
+                        trackPoint.appendChild(trackname);
+                       trackPoint.setAttribute("lat", String.valueOf(coord.y));
+                        trackPoint.setAttribute("lon", String.valueOf(-coord.x));
+                        trackSegment.appendChild(trackPoint);
+                    }
+                    out2.flush();
+                    }
 
                     currNode = currNode.getNextNode();
                 }
             }
-
+            out2.close();
+                fos.close();
 
             /////////////////
             //Output the XML
@@ -236,7 +248,7 @@ public class GPXBuilder {
 
             Element trackPoint;
             ArrayList<String> visitedNodes = new ArrayList<String>();
-            for (Edge currNode : graph.getEdgeList()) {
+            for (Edge currNode : graph.getEdgeList().values()) {
 
                 if (graph.getNode(currNode.getTo()).getPosition().getLat() > 49.49452 ||
                     graph.getNode(currNode.getTo()).getPosition().getLat() < 49.44930 ||

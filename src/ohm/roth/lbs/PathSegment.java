@@ -10,7 +10,7 @@ public class PathSegment {
     protected PathNode lastNode;
 
     public boolean isEmpty() {
-        if (firstNode == null) return true; else return false;
+        return firstNode == null;
     }
 
     public double getLength() {

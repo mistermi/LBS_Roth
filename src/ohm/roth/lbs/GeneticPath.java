@@ -34,8 +34,7 @@ public class GeneticPath implements Comparable<GeneticPath> {
     GeneticPath(GeneticPath p) {
         // copy constructor
         this();
-        for (int i = 0; i < length; i++)
-            path[i] = p.path[i];
+        System.arraycopy(p.path, 0, path, 0, length);
     }
 
     void swap(int[] a, int i, int j) {
@@ -125,8 +124,7 @@ public class GeneticPath implements Comparable<GeneticPath> {
         GeneticPath baby = new GeneticPath();
 
         // Anteil von M
-        for (int i = 0; i < crossoverPoint; i++)
-            baby.path[i] = M.path[i];
+        System.arraycopy(M.path, 0, baby.path, 0, crossoverPoint);
 
         int start = crossoverPoint;
 

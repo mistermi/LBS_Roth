@@ -1,8 +1,15 @@
 package ohm.roth.lbs;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.operation.*;
+import com.vividsolutions.jts.operation.distance.DistanceOp;
 
 import java.awt.geom.Point2D;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,21 +20,21 @@ import java.util.UUID;
 public class NavGraph implements Serializable {
     public String name;
     public HashMap<String, Node> nodeList;
-    public HashMap<String, LineString> geoList;
-    public List<Edge> edgeList;
+    public HashMap<String, Geometry> geoList;
+    public HashMap<String, Edge> edgeList;
 
     public NavGraph(String name) {
         nodeList = new HashMap<String, Node>();
-        geoList = new HashMap<String, LineString>();
-        edgeList = new ArrayList<Edge>();
+        geoList = new HashMap<String, Geometry>();
+        edgeList = new HashMap<String, Edge>();
         this.name = name;
     }
 
     public NavGraph() {
         super();
         nodeList = new HashMap<String, Node>();
-        geoList = new HashMap<String, LineString>();
-        edgeList = new ArrayList<Edge>();
+        geoList = new HashMap<String, Geometry>();
+        edgeList = new HashMap<String, Edge>();
     }
 
     public String getName() {
@@ -39,28 +46,34 @@ public class NavGraph implements Serializable {
     }
 
     //geoList
-    public void addGeo(String id, LineString line) {
+    public void addGeo(String id, Geometry geo) {
         if (!this.geoList.containsKey(id))
-            this.geoList.put(id, line);
+            this.geoList.put(id, geo);
     }
 
-    public LineString getGeo(String id) {
+    public Geometry getGeo(String id) {
         return this.geoList.get(id);
     }
 
-    public HashMap<String, LineString> getGeoList() {
+    public HashMap<String, Geometry> getGeoList() {
         return geoList;
     }
 
-    public void setGeoList(HashMap<String, LineString> geoList) {
+    public void setGeoList(HashMap<String, Geometry> geoList) {
         this.geoList = geoList;
     }
 
     // nodelist
-    public void addNode(Node n) {
-        if (!this.nodeList.containsKey(n.getName()))
-            this.nodeList.put(n.getName(), n);
+    public void addNode(String id, Position pos, String geoId, int geoPos) {
+        if (!this.nodeList.containsKey(id)) {
+            this.nodeList.put(id, new Node(id, pos));
+        }
+        if (this.geoList.containsKey(geoId))
+            if (!this.getGeo(geoId).getConnectedNodes().containsKey(id)) {
+                this.getGeo(geoId).addNode(this.nodeList.get(id), geoPos);
+            }
     }
+
 
     public Node getNode(String id) {
         return this.nodeList.get(id);
@@ -76,19 +89,45 @@ public class NavGraph implements Serializable {
 
     // edgelist
     public void addEdge(Edge e) {
-        this.edgeList.add(e);
+        this.edgeList.put(e.getId(), e);
     }
 
     public void removeEdge(Edge e) {
         this.edgeList.remove(e);
     }
 
-    public List<Edge> getEdgeList() {
+    public HashMap<String, Edge> getEdgeList() {
         return edgeList;
     }
 
-    public void setEdgeList(List<Edge> edgeList) {
+    public void setEdgeList(HashMap<String, Edge> edgeList) {
         this.edgeList = edgeList;
+    }
+
+    public void initGraph() {
+        System.out.println("Init Graph");
+        for (Edge edge : this.edgeList.values()) {
+            edge.setGeo(this.getGeo(edge.getGeo_id()));
+            Coordinate[] coordinates;
+            GeometryFactory fac = new GeometryFactory();
+            int ii = 0;
+            if (edge.getToPos() > edge.getFromPos()) {
+                coordinates = new Coordinate[(edge.getToPos() - edge.getFromPos()) + 1];
+                for (int i = edge.getFromPos(); i <= edge.getToPos(); i++) {
+                    coordinates[ii] = edge.getGeo().getGeometry().getPointN(i).getCoordinate();
+                    ii++;
+                }
+            } else if (edge.getFromPos() > edge.getToPos()) {
+                coordinates = new Coordinate[(edge.getFromPos() - edge.getToPos()) + 1];
+                for (int i = edge.getFromPos(); i >= edge.getToPos(); i--) {
+                    coordinates[ii] = edge.getGeo().getGeometry().getPointN(i).getCoordinate();
+                    ii++;
+                }
+            } else {
+                coordinates = new Coordinate[0];
+            }
+            edge.setEdgeGeo(fac.createLineString(coordinates));
+        }
     }
 
     public Node findClosest(Position p) {
@@ -104,66 +143,155 @@ public class NavGraph implements Serializable {
     }
 
     public Node findClosest2(Position p) {
-        double dis = 999999999;
+        double dis = Double.MAX_VALUE;
         boolean node = false;
+
         Node bNode = null;
         Edge bEdge = null;
+        String bGeo = null;
+        GeometryFactory fac = new GeometryFactory();
+        int lastPos = -1;
 
-        for (Edge edge : this.edgeList) {
+        for (Edge edge : this.edgeList.values()) {
             //TODO: Abstand auf Geometry
             //TODO: Ewentuell nicht als kart. Koordinaten
             Node nodeTo = this.nodeList.get(edge.getTo());
             Node nodeFrom = this.nodeList.get(edge.getFrom());
-            if (nodeTo.getPosition().getLat() == p.getLat() && nodeTo.getPosition().getLon() == p.getLon()) return nodeTo;
-            if (nodeFrom.getPosition().getLat() == p.getLat() && nodeFrom.getPosition().getLon() == p.getLon()) return nodeFrom;
+            if (nodeTo.getPosition().getLat() == p.getLat() && nodeTo.getPosition().getLon() == p.getLon())
+                return nodeTo;
+            if (nodeFrom.getPosition().getLat() == p.getLat() && nodeFrom.getPosition().getLon() == p.getLon())
+                return nodeFrom;
 
-            double xDelta = nodeTo.getPosition().getLon() - nodeFrom.getPosition().getLon();
-            double yDelta = nodeTo.getPosition().getLat() - nodeFrom.getPosition().getLat();
-            double u = ((p.getLon() - nodeFrom.getPosition().getLon()) * xDelta) + ((p.getLat() - nodeFrom.getPosition().getLat()) * yDelta);
-            u = u / (xDelta * xDelta + yDelta * yDelta);
-            if (u < 0) {
-                if (distance.calcDist(nodeFrom, p) < dis) {
-                    bNode = nodeFrom;
-                    dis = distance.calcDist(nodeFrom, p);
-                    node = true;
-                }
-            } else if (u > 1) {
-                if (distance.calcDist(nodeTo, p) < dis) {
-                    bNode = nodeTo;
-                    dis = distance.calcDist(nodeTo, p);
-                    node = true;
-                }
-            } else {
-                Node tmpNode = new Node("INSERTD"+ UUID.randomUUID().toString(), new Position ((nodeFrom.getPosition().getLon() + u * xDelta), (nodeFrom.getPosition().getLat() + u * yDelta)));
-                if (distance.calcDist(tmpNode, p) < dis) {
-                    bNode = tmpNode;
-                    bEdge = edge;
-                    dis = distance.calcDist(tmpNode, p);
-                    node = false;
+            for (int i = 0; i < edge.getEdgeGeo().getNumPoints() - 1; i++) {
+                Coordinate[] coords = new Coordinate[2];
+                LineString testLine;
+                coords[0] = edge.getEdgeGeo().getPointN(i).getCoordinate();
+                coords[1] = edge.getEdgeGeo().getPointN(i+1).getCoordinate();
+                testLine = fac.createLineString(coords);
+                Coordinate[] pts = DistanceOp.closestPoints(p.getPoint(),testLine);
+                if (distance.calcDist(pts[0], pts[1]) >= dis) continue;
+
+                if (coords[0].equals(pts[1])) {
+                    if (distance.calcDist(edge.getEdgeGeo().getPointN(i).getCoordinate(), p) < dis) {
+                        bNode = nodeFrom;
+                        dis = distance.calcDist(edge.getEdgeGeo().getPointN(i).getCoordinate(), p);
+                        node = true;
+                    }
+                } else if (coords[1].equals(pts[1])) {
+                    if (distance.calcDist(edge.getEdgeGeo().getPointN(i + 1).getCoordinate(), p) < dis) {
+                        bNode = nodeTo;
+                        dis = distance.calcDist(edge.getEdgeGeo().getPointN(i + 1).getCoordinate(), p);
+                        node = true;
+                    }
+                } else {
+                    Node tmpNode = new Node("INSERTD" + UUID.randomUUID().toString(), new Position(pts[1].x, pts[1].y));
+                    if (distance.calcDist(tmpNode, p) < dis) {
+                        lastPos = i;
+                        bNode = tmpNode;
+                        bEdge = edge;
+                        bGeo = edge.getGeo_id();
+                        dis = distance.calcDist(tmpNode, p);
+                        node = false;
+                    }
                 }
             }
         }
         if (!node) {
             // Node einfügen
-            // Todo: Kosten der einzufügenden Kante berechnen
-            addNode(bNode);
-            addConnection(bNode.getName(), bEdge.getFrom(), 0, bEdge.gao_id, bEdge.from_node, bEdge.to_node);
-            addConnection(bEdge.getFrom(), bNode.getName(), 0, bEdge.gao_id, bEdge.from_node, bEdge.to_node);
-			addConnection(bNode.getName(), bEdge.getTo(), 0, bEdge.gao_id, bEdge.from_node, bEdge.to_node);
-            addConnection(bEdge.getTo(), bNode.getName(), 0, bEdge.gao_id, bEdge.from_node, bEdge.to_node);
+            //Linestring 1
+            LineString line1, line2;
+            Coordinate[] coordinates = new Coordinate[lastPos + 2];
+            int ii = 0;
+            for (int i = 0; i <= lastPos; i++) {
+                coordinates[ii] = bEdge.getEdgeGeo().getPointN(i).getCoordinate();
+                ii++;
+            }
+            coordinates[lastPos + 1] = bNode.getPosition();
+            line1 = fac.createLineString(coordinates);
+            coordinates = new Coordinate[bEdge.getEdgeGeo().getNumPoints() - lastPos];
+            coordinates[0] = bNode.getPosition();
+            ii = 1;
+            for (int i = lastPos + 1; i < bEdge.getEdgeGeo().getNumPoints(); i++) {
+                coordinates[ii] = bEdge.getEdgeGeo().getPointN(i).getCoordinate();
+                ii++;
+            }
+            line2 = fac.createLineString(coordinates);
+
+            addNode(bNode.getId(), bNode.getPosition(), bGeo, 0);
+            addConnection(bNode.getId(), bEdge.getFrom(), distance.distanceLinestring(line1), bGeo, bEdge.from_node, bEdge.to_node);
+            addConnection(bEdge.getFrom(), bNode.getId(), distance.distanceLinestring(line1), bGeo, bEdge.from_node, bEdge.to_node);
+            addConnection(bNode.getId(), bEdge.getTo(), distance.distanceLinestring(line2), bGeo, bEdge.from_node, bEdge.to_node);
+            addConnection(bEdge.getTo(), bNode.getId(), distance.distanceLinestring(line2), bGeo, bEdge.from_node, bEdge.to_node);
+            this.getEdgeList().get(bNode.getId() + "___" + bEdge.getFrom()).setEdgeGeo(line1);
+            this.getEdgeList().get(bEdge.getFrom() + "___" + bNode.getId()).setEdgeGeo(line1);
+            this.getEdgeList().get(bNode.getId() + "___" + bEdge.getTo()).setEdgeGeo(line2);
+            this.getEdgeList().get(bEdge.getTo() + "___" + bNode.getId()).setEdgeGeo(line2);
+
+            try {
+                FileOutputStream fos = null;
+                fos = new FileOutputStream("addpoint.txt");
+                OutputStreamWriter out2 = new OutputStreamWriter(fos);
+                Edge e = this.getEdgeList().get(bEdge.getFrom() + "___" + bNode.getId());
+                out2.write("LINE mode=1 col=0,0,255,75\n");
+                for (Coordinate pos : e.getEdgeGeo().getCoordinates()) {
+                        out2.write(pos.x + "," + pos.y + "\n");
+                }
+                e = this.getEdgeList().get(bNode.getId() + "___" + bEdge.getTo());
+                out2.write("LINE mode=1 col=0,0,255,75\n");
+                for (Coordinate pos : e.getEdgeGeo().getCoordinates()) {
+                        out2.write(pos.x + "," + pos.y + "\n");
+                }
+
+                out2.write("POSITIONS col=255,0,0,100 rad=15\n");
+                out2.write(bNode.getPosition().x + "," + bNode.getPosition().y + "\n");
+
+                out2.write("POSITIONS col=255,255,0,100 rad=15\n");
+                out2.write(p.x + "," + p.y + "\n");
+
+                out2.close();
+                fos.close();
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            }
+
         }
 
-
-        return bNode;
+        return getNode(bNode.getId());
     }
 
-    public void addConnection(String firstId, String secondId, double c, String gao_id, int from_node, int to_node) {
+    public void dumpGraph(String filename) throws IOException {
+        FileOutputStream fos = null;
+        List<String> fooo = new ArrayList<String>();
+
+        fos = new FileOutputStream("test.txt");
+
+        OutputStreamWriter out2 = new OutputStreamWriter(fos);
+
+        for (Edge e : this.getEdgeList().values()) {
+            if ((!fooo.contains(this.getNode(e.getFrom()).getId() + "___" + this.getNode(e.getTo()).getId())) && (!fooo.contains(this.getNode(e.getTo()).getId() + "___" + this.getNode(e.getFrom()).getId()))) {
+                out2.write("LINE mode=1 col=0,0,255,75\n");
+                out2.write(this.getNode(e.getFrom()).getPosition().getLat() + ","
+                        + this.getNode(e.getFrom()).getPosition().getLon() + "\n");
+                out2.write(this.getNode(e.getTo()).getPosition().getLat() + ","
+                        + this.getNode(e.getTo()).getPosition().getLon() + "\n");
+
+                fooo.add((this.getNode(e.getTo()).getId() + "___" + this.getNode(e.getFrom()).getId()));
+            }
+        }
+        out2.close();
+        fos.close();
+    }
+
+    public void addConnection(String firstId, String secondId, double c, String gao, int firstPos, int secondPos) {
         Node node1 = this.getNode(firstId);
         Node node2 = this.getNode(secondId);
         if (node1 != null && node2 != null) {
-            Edge edge1 = new Edge(node1.getName(), node2.getName(), c, gao_id, from_node, to_node);
-            node1.addNeighbore(edge1);
-            this.addEdge(edge1);
+            if (!this.edgeList.containsKey(node1.getId() + "___" + node2.getId())) {
+                Edge edge1 = new Edge((node1.getId() + "___" + node2.getId()), node1.getId(), node2.getId(), c, this.getGeo(gao), firstPos, secondPos);
+                node1.addNeighbore(edge1);
+                this.addEdge(edge1);
+            }
+
         }
     }
 }

@@ -6,23 +6,22 @@ import java.util.List;
 
 
 public class Node implements Serializable {
-	protected String name;
+	protected String id;
     protected Position position;
     protected List<Edge> neighbors;
-    
-    
-	public String getName() {
-		return name;
+
+    public String getId() {
+		return id;
 	}
 	public void setId(String name) {
-		this.name = name;
+		this.id = name;
 	}
-	public Node(String name, Position position) {
+	public Node(String id, Position position) {
 		super();
 		this.neighbors = new ArrayList<Edge>();
-		this.name = name;
+		this.id = id;
 		this.position = position;
-	}
+    }
 	public List<Edge> getNeighbors() {
 		return neighbors;
 	}

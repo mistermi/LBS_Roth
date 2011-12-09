@@ -1,5 +1,9 @@
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import ohm.roth.lbs.*;
 
+import com.vividsolutions.jts.*;
+import com.vividsolutions.jts.operation.distance.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +25,7 @@ public class Application {
     private String graphname = "NBG";
     private TSP.tspType defaultTspType = TSP.tspType.GENETIC_GOOD;
 
-    public Application(String dbhost, int dbport, String dbuser, String dbpasswd, String dbname, String graphname, int debug) {
+    public Application(String dbhost, int dbport, String dbuser, String dbpasswd, String dbname, String graphname) {
         this.dbhost = dbhost;
         this.dbport = dbport;
         this.dbuser = dbuser;
@@ -38,24 +42,24 @@ public class Application {
         System.out.println("Fuch Daniel, Rohlederer Mischa");
         System.out.println("============================================================");
 
-        double time_global = System.currentTimeMillis();
-        double w = 1;
-
         // Zu benutzender Kartenausschnitt
-        Position topleft = new Position(-11.18493167, 49.49496333);
-        Position botright = new Position(-10.99845000, 49.39349500);
+        Position[] boundingBox = new Position[2];
+        boundingBox[0] = new Position(-11.18493167, 49.49496333);
+        boundingBox[1] = new Position(-10.99845000, 49.39349500);
 
         // Pfad einstellungen
         String pathName = "Aufgabe 01";
-
         // Datenbank zugang
         File file = new File(graphname + ".DAT");
         if (file.exists()) {
             loadGraph_File(graphname);
         } else {
-            loadGraph_Database(topleft, botright, graphname);
+            loadGraph_Database(boundingBox, graphname);
         }
+        graph.initGraph();
 
+        graph.findClosest2(new Position(-11.082277777777778,49.453722222222225));
+        // 49.453722222222225,-11.082277777777778
         boolean quit = false;
         do {
             System.out.println();
@@ -90,8 +94,6 @@ public class Application {
 
         while (!quit);
         System.exit(0);
-
-
     }
 
     // Pfad generator
@@ -145,6 +147,7 @@ public class Application {
         List<Waypoint> orderdWaypoints;
 
 
+
         // Rundweg
         if (waypoints.size() > 2) {
             double time_tsp = System.currentTimeMillis();
@@ -166,6 +169,12 @@ public class Application {
         }
 
 
+        // Cosest points
+        Node[] waynotes = new Node[orderdWaypoints.size()];
+        for (int i = 0; i < orderdWaypoints.size(); i++) {
+            waynotes[i] = graph.findClosest2(orderdWaypoints.get(i));
+        }
+
         // A-Stern
         double globalLength = 0;
         Path path = new Path(name);
@@ -175,8 +184,8 @@ public class Application {
             // A Stern im Rundweg
             try {
                 for (int i = 0; i <= orderdWaypoints.size() - 1; i++) {
-                    Node start = graph.findClosest2(orderdWaypoints.get(i));
-                    Node end = graph.findClosest2(orderdWaypoints.get((i + 1) % (orderdWaypoints.size())));
+                    Node start = waynotes[i];
+                    Node end = waynotes[(i+1) % (orderdWaypoints.size())];
                     AStarAlgorithm.AStarResult result = astar.search(graph, start, end, orderdWaypoints.get(i).getName()+" - "+orderdWaypoints.get((i + 1) % (orderdWaypoints.size())).getName());
                     result.print();
                     globalLength += result.getLength();
@@ -345,7 +354,7 @@ public class Application {
                 } catch (IOException e) {
                     System.out.println("Error writing GPX File");
                 }
-                System.out.println("Path length: " + distance.listLength(orderdWaypoints));
+                System.out.println("Path length: " + distance.distanceList(orderdWaypoints));
                 System.out.println(currTSP + " took " + time_tsp + " Secs");
                 System.out.println();
             } catch (IllegalArgumentException e) {
@@ -395,6 +404,7 @@ public class Application {
         System.out.println("==================================================");
         System.out.println("Node Count: " + graph.nodeList.size());
         System.out.println("Edge Count: " + graph.edgeList.size());
+        System.out.println("Geometry Count: " + graph.getGeoList().size());
     }
 
     public void graphChange() {
@@ -426,7 +436,7 @@ public class Application {
                     double lon2 = scan.nextDouble();
                     System.out.println("Lat:");
                     double lat2 = scan.nextDouble();
-                    loadGraph_Database(lon1, lon2, lat1, lat2, "F00.DAT");
+                    //loadGraph_Database(lon1, lon2, lat1, lat2, "F00.DAT");
                     break;
                 case 3:
 
@@ -472,11 +482,7 @@ public class Application {
         }
     }
 
-    public void loadGraph_Database(Position pos1, Position pos2, String name) {
-        loadGraph_Database(pos1.getLon(), pos2.getLon(), pos1.getLat(), pos2.getLat(), name);
-    }
-
-    public void loadGraph_Database(double lon1, double lon2, double lat1, double lat2, String name) {
+    public void loadGraph_Database(Position[] bBox, String name) {
         // Graph aus Datei laden
         double time_graph = System.currentTimeMillis();
         System.out.println("============================================================");
@@ -488,7 +494,7 @@ public class Application {
         System.out.println("Fetching Data from DB and building graph");
         try {
             connection.connect();
-            graph = connection.getGraph(new Position(lon1, lat1), new Position(lon2, lat2), name);
+            graph = connection.getGraph(bBox, name);
             FileOutputStream fos = new FileOutputStream(file.getName());
             ObjectOutputStream out2 = new ObjectOutputStream(fos);
             out2.writeObject(graph);

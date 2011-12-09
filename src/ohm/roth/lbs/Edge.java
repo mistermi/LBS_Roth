@@ -1,66 +1,92 @@
 package ohm.roth.lbs;
-import com.vividsolutions.jts.geom.Geometry;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 
 import java.io.Serializable;
 
 public class Edge implements Serializable {
+    protected String id;
 	protected String from;
     protected String to;
     protected double cost;
-    protected String gao_id;
-    protected Geometry genometry;
     protected int from_node;
     protected int to_node;
-    
-	public String getGao_id() {
-		return gao_id;
-	}
-	public void setGao_id(String gao_id) {
-		this.gao_id = gao_id;
-	}
-	public int getFrom_node() {
-		return from_node;
-	}
-	public void setFrom_node(int from_node) {
-		this.from_node = from_node;
-	}
-	public int getTo_node() {
-		return to_node;
-	}
-	public void setTo_node(int to_node) {
-		this.to_node = to_node;
-	}
-	public String getFrom() {
-		return from;
-	}
-	public void setFrom(String from) {
-		this.from = from;
-	}
-	public String getTo() {
-		return to;
-	}
-	public Edge(String from, String to) {
-		super();
-		this.from = from;
-		this.to = to;
-	}
-	
-	public Edge(String from, String to, double cost, String gao_id, int from_node, int to_node) {
-		super();
+    private LineString edgeGeo;
+
+    public void setEdgeGeo(LineString edgeGeo) {
+        this.edgeGeo = edgeGeo;
+    }
+
+    public void setGeo(Geometry geo) {
+        this.geo = geo;
+    }
+
+    private String geo_id;
+    private Geometry geo;
+    private int fromPos;
+    private int toPos;
+
+    public Edge(String id, String from, String to, double cost, Geometry geo, int fromPos, int toPos) {
+        this.id = id;
 		this.from = from;
 		this.to = to;
 		this.cost = cost;
-		this.gao_id = gao_id;
-		this.from_node = from_node;
-		this.to_node = to_node;
+        this.geo_id = geo.getId();
+        this.fromPos = fromPos;
+        this.toPos = toPos;
+    }
+
+    public int getFrom_node() {
+        return from_node;
+    }
+
+    public int getTo_node() {
+        return to_node;
+    }
+
+    public LineString getEdgeGeo() {
+        return edgeGeo;
+    }
+
+    public double getCost() {
+        return distance.distanceLinestring(edgeGeo);
+    }
+
+    public String getGeo_id() {
+        return geo_id;
+    }
+
+    public Geometry getGeo() {
+        return geo;
+    }
+
+    public int getFromPos() {
+        return fromPos;
+    }
+
+    public int getToPos() {
+        return toPos;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getFrom() {
+		return from;
 	}
-	public void setTo(String to) {
+
+	public String getTo() {
+		return to;
+	}
+
+	public Edge(String id, String from, String to, double cost) {
+		super();
+        this.id = id;
+		this.from = from;
 		this.to = to;
-	}
-	public double getCost() {
-		return cost;
-	}
-	public void setCost(double cost) {
 		this.cost = cost;
 	}
 }

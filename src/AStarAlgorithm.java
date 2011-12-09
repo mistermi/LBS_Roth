@@ -42,14 +42,14 @@ public class AStarAlgorithm {
         SortableValueMap<String, AStarNode> openSet = new SortableValueMap<String, AStarNode>();
         SortableValueMap<String, AStarNode> closeSet = new SortableValueMap<String, AStarNode>();
         AStarNode start = new AStarNode(source);
-        openSet.put(source.getName(), start);
+        openSet.put(source.getId(), start);
 
         AStarNode goal = null;
         while (openSet.size() > 0) {
             openSet.sortByValue();
             AStarNode x = openSet.get(openSet.keySet().toArray()[0]);
             openSet.remove(x.getName());
-            if (x.getName().equals(target.getName())) {
+            if (x.getName().equals(target.getId())) {
                 // found
                 goal = x;
                 break;
@@ -59,12 +59,12 @@ public class AStarAlgorithm {
                 List<Edge> neighborsEdges = x.getNode().getNeighbors();
                 for (Edge neighborEdge : neighborsEdges) {
                     Node neighbor = graph.getNode(neighborEdge.getTo());
-                    if (closeSet.containsKey(neighbor.getName()))
+                    if (closeSet.containsKey(neighbor.getId()))
                         continue;
                     double g = x.getG() + neighborEdge.getCost();
                     double h = distance.calcDist(neighbor, target) * this.w;
                     double f = g + h;
-                    AStarNode n = openSet.get(neighbor.getName());
+                    AStarNode n = openSet.get(neighbor.getId());
                     if (n == null) {
                         // Node noch nicht in Open
                         if (buildExpanded) {
@@ -80,7 +80,7 @@ public class AStarAlgorithm {
                         n.setCameFromEdge(neighborEdge);
                         n.setG(g);
                         n.setF(f);
-                        openSet.put(neighbor.getName(), n);
+                        openSet.put(neighbor.getId(), n);
                     } else if (f < n.getF()) {
                         // Node in open aber "neuer" Weg ist kuerzer
                         n.setCameFrom(x);
@@ -177,7 +177,7 @@ public class AStarAlgorithm {
         }
 
         public String getName() {
-            return node.getName();
+            return node.getId();
         }
 
         public void setNode(Node node) {
@@ -298,17 +298,17 @@ public class AStarAlgorithm {
                     .println("Nodes in Path: "
                             + pathNodes
                             + " ("
-                            + (double) (((double) this.pathNodes / this.nodes) * 100) + "%)");
+                            + ((double) this.pathNodes / this.nodes) * 100 + "%)");
             System.out
                     .println("Nodes in Path: "
                             + this.pathNodes
                             + " ("
-                            + (double) (((double) this.pathNodes / this.nodes) * 100) + "%)");
+                            + ((double) this.pathNodes / this.nodes) * 100 + "%)");
             System.out
                     .println("Expanded Nodes: "
                             + this.expandedNodes
                             + " ("
-                            + (double) (((double) this.expandedNodes / this.nodes) * 100) + "%)");
+                            + ((double) this.expandedNodes / this.nodes) * 100 + "%)");
             System.out.println("A-Star Run Time: "
                     + this.runtime / 1000
                     + " s");

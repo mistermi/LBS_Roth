@@ -1,12 +1,6 @@
 package ohm.roth.lbs;
 
-import ohm.roth.lbs.GeneticPath;
-import ohm.roth.lbs.GeneticPopulation;
-import ohm.roth.lbs.Waypoint;
-import ohm.roth.lbs.distance;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TSP {
@@ -69,13 +63,13 @@ public class TSP {
             return;
         }
         // neuer bester pfasd
-        if (curr.size() == (source.size() + 1) && best.size() == (source.size() + 1) && distance.listLength(best) > distance.listLength(curr)) {
+        if (curr.size() == (source.size() + 1) && best.size() == (source.size() + 1) && distance.distanceList(best) > distance.distanceList(curr)) {
             best.clear();
             best.addAll(curr);
             return;
         }
 
-        if (distance.listLength(best) < distance.listLength(curr)) {
+        if (distance.distanceList(best) < distance.distanceList(curr)) {
             return;
         }
         if (curr.size() == source.size()) {
