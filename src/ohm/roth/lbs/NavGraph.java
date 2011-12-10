@@ -153,8 +153,6 @@ public class NavGraph implements Serializable {
         int lastPos = -1;
 
         for (Edge edge : this.edgeList.values()) {
-            //TODO: Abstand auf Geometry
-            //TODO: Ewentuell nicht als kart. Koordinaten
             Node nodeTo = this.nodeList.get(edge.getTo());
             Node nodeFrom = this.nodeList.get(edge.getFrom());
             if (nodeTo.getPosition().getLat() == p.getLat() && nodeTo.getPosition().getLon() == p.getLon())

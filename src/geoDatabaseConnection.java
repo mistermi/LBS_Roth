@@ -123,7 +123,7 @@ public class geoDatabaseConnection {
         Envelope boundingBox = triangle.getEnvelopeInternal();
         time = System.currentTimeMillis();
         statement = connection.createStatement();
-        statement.setFetchSize(1000);
+        statement.setFetchSize(1000000000);
         resultSet = statement.executeQuery("SELECT " +
                 "domain.gao_id AS gaoid, domain.fullname AS gaoname, domain.geodata_line AS gaoline, domain.lsiclass AS gaolsi, " +
                 "crossing.id AS id, crossing.long AS lon, crossing.lat AS lat, crossing.posnr AS pos " +

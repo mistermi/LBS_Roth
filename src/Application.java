@@ -39,7 +39,7 @@ public class Application {
     public void mainMenu() {
         System.out.println("============================================================");
         System.out.println("Roth LBS Aufgabe 2011");
-        System.out.println("Fuch Daniel, Rohlederer Mischa");
+        System.out.println("Fuchs Daniel, Rohlederer Mischa");
         System.out.println("============================================================");
 
         // Zu benutzender Kartenausschnitt
@@ -56,10 +56,13 @@ public class Application {
         } else {
             loadGraph_Database(boundingBox, graphname);
         }
-        graph.initGraph();
+        //graph.initGraph();
+        try {
+            graph.dumpGraph("foo.txt");
+        } catch (Exception e) {
+            System.out.print("Schlecht");
+        }
 
-        graph.findClosest2(new Position(-11.082277777777778,49.453722222222225));
-        // 49.453722222222225,-11.082277777777778
         boolean quit = false;
         do {
             System.out.println();
@@ -170,10 +173,14 @@ public class Application {
 
 
         // Cosest points
+        System.out.println("Finding nearest Node for " + (orderdWaypoints.size()) + " Points");
+        double nearest_time = System.currentTimeMillis();
         Node[] waynotes = new Node[orderdWaypoints.size()];
         for (int i = 0; i < orderdWaypoints.size(); i++) {
             waynotes[i] = graph.findClosest2(orderdWaypoints.get(i));
         }
+        nearest_time = (System.currentTimeMillis() - nearest_time) / 1000;
+        System.out.println("Finding Nodes took " + nearest_time + " Secs");
 
         // A-Stern
         double globalLength = 0;
