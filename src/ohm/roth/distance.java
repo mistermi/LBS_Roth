@@ -18,7 +18,13 @@ public class distance {
         jts, manual, roth
     }
 
-    private static double unitConvert(double value, unit u) {
+    /**
+     * Coverts the given value in Meters into the given Unit
+     * @param value Input Value in Meter
+     * @param u Output Unit
+     * @return Converted Value
+     */
+    public static double unitConvert(double value, unit u) {
         switch (u) {
             case meter:
                 return value;
@@ -30,6 +36,16 @@ public class distance {
                 return 1;
         }
     }
+
+    /**
+     * Converts the given value in Meters into the default Unit
+     * @param value Input Value in Meter
+     * @return Converted Value
+     */
+    public static double unitConvert(double value) {
+        return unitConvert(value, distance.selectedUnit);
+    }
+
 
     public static double calcDist(Coordinate p1, Coordinate p2) {
         double dis;
@@ -45,7 +61,7 @@ public class distance {
                 dis = earthRadius * c;
                 break;
             case roth:
-                dis = fu.gps.Spherical.greatCircleMeters(p1.x, p1.y, p2.x, p2.y);
+                dis = fu.gps.Spherical.greatCircleMeters(p1.y, p1.x, p2.y, p2.x);
                 break;
             default:
                 dis = p1.distance(p2) * (Math.PI / 180) * earthRadius;

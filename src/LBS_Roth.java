@@ -18,7 +18,7 @@ public class LBS_Roth {
         Application.boundingBox = new Position[2];
         Application.boundingBox[0] = new Position(-11.515045166015625, 49.244500299230936);
         Application.boundingBox[1] = new Position(-10.745315551757813, 49.5871228977892);
-
+        // Dis = 67423.2255363751
         Application.mainMenu();
     }
 }

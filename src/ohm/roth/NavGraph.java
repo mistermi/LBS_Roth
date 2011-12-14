@@ -154,6 +154,9 @@ public class NavGraph implements Serializable {
                 return nodeTo;
             if (nodeFrom.getPosition().getLat() == p.getLat() && nodeFrom.getPosition().getLon() == p.getLon())
                 return nodeFrom;
+            if ((distance.calcDist(p,nodeFrom.getPosition()) + edge.getCost()) > distance.unitConvert(1000) || (distance.calcDist(p,nodeTo.getPosition()) + edge.getCost()) > distance.unitConvert(1000))
+                continue;
+
             for (int i = 0; i < edge.getEdgeGeo().getNumPoints() - 1; i++) {
                 Coordinate[] coords = new Coordinate[2];
                 LineString testLine;

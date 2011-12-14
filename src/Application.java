@@ -1,3 +1,4 @@
+import com.vividsolutions.jts.geom.LineString;
 import ohm.roth.*;
 import ohm.roth.astar.AStarAlgorithm;
 import ohm.roth.astar.AStarResult;
@@ -256,6 +257,8 @@ public class Application {
         System.out.println("Global Length (including Waypoints): " + distance.distanceLinestring(path.getGeoLineString()) + " Meter");
 
         try {
+            LineString line = path.getGeoLineString();
+
             FileWriter fstream = new FileWriter(name + "-Topo.GPX");
             BufferedWriter out = new BufferedWriter(fstream);
             out.write(GPXBuilder.build(path.getTopoLineString(), path.getName()));

@@ -44,14 +44,12 @@ public class PathSegment {
     public List<Coordinate> getSegmentCoordinates(boolean includingWaypoints) {
         List<Coordinate> coords = new ArrayList<Coordinate>();
         PathNode currNode = this.getFirstNode();
-        Coordinate lastCoord = null;
         if (includingWaypoints) coords.add(startWaypoint);
         while (currNode != null) {
             if (currNode.getNextEdge() != null) {
                 for (Coordinate coord : currNode.getNextEdge().getEdgeGeo().getCoordinates()) {
                     //if (lastCoord != null && !coord.equals(lastCoord))
-                        coords.add(coord);
-                    lastCoord = coord;
+                    coords.add(coord);
                 }
             }
             currNode = currNode.getNextNode();

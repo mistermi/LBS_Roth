@@ -39,6 +39,7 @@ public class Edge implements Serializable {
 
     public void setEdgeGeo(LineString edgeGeo) {
         this.edgeGeo = edgeGeo;
+        this.cost = distance.distanceLinestring(this.edgeGeo);
     }
 
     public void setGeo(Geometry geo) {
@@ -50,7 +51,7 @@ public class Edge implements Serializable {
     }
 
     public double getCost() {
-        return distance.distanceLinestring(edgeGeo);
+        return this.cost;
     }
 
     public String getGeo_id() {
