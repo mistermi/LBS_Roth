@@ -1,3 +1,6 @@
+import ohm.roth.Position;
+import ohm.roth.distance;
+
 /**
  * User: mischarohlederer
  * Date: 27.10.11
@@ -5,17 +8,17 @@
  */
 public class LBS_Roth {
     public static void main(String[] args) {
-// Standart Einstellungen
-        String dbhost = "geo.informatik.fh-nuernberg.de";
-        int dbport = 5432;
-        String dbuser = "dbuser";
-        String dbpasswd = "dbuser";
-        String dbname = "deproDBMittelfranken";
+        // Standart Einstellungen
+        Application.dbhost = "geo.informatik.fh-nuernberg.de";
+        Application.dbport = 5432;
+        Application.dbuser = "dbuser";
+        Application.dbpasswd = "dbuser";
+        Application.dbname = "deproDBMittelfranken";
+        Application.graphname = "Data";
+        Application.boundingBox = new Position[2];
+        Application.boundingBox[0] = new Position(-11.515045166015625, 49.244500299230936);
+        Application.boundingBox[1] = new Position(-10.745315551757813, 49.5871228977892);
 
-        //System.out.println(ohm.roth.ohm.roth.lbs.distance.calcDist(new Position(-11.07043531536262,49.45043799363943), new Position(-11.0754185442121,49.45185742264561)));
-
-        Application app = new Application(dbhost,dbport,dbuser,dbpasswd,dbname,"NBG_TEST");
-        app.mainMenu();
+        Application.mainMenu();
     }
-
 }
