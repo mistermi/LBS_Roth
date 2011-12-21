@@ -53,6 +53,8 @@ public class Application {
             Application.loadGraph_Database(boundingBox, graphname);
         }
 
+
+
         double time_init = System.currentTimeMillis();
         Application.println("Init Graph");
         graph.initGraph();
@@ -190,6 +192,8 @@ public class Application {
         }
 
 
+        //TODO: Ausgabe des TSP in dorenda
+
         // Cosest points
         System.out.println("Finding nearest Node for " + (orderdWaypoints.size()) + " Points");
         double nearest_time = System.currentTimeMillis();
@@ -219,6 +223,11 @@ public class Application {
                     String segmentName = orderdWaypoints.get(i).getName() + " - " + orderdWaypoints.get((i + 1) % (orderdWaypoints.size())).getName();
                     AStarResult result = AStarAlgorithm.search(graph, start, end, segmentName, w, 0, Application.lsiWeights, weightedLsi, visitedEdges, reduceDoubleEdges);
                     result.print();
+                    FileWriter fstream = new FileWriter("Exp "+segmentName+".txt");
+                    BufferedWriter out = new BufferedWriter(fstream);
+                    out.write(DORENDABuilder.build(result.getExpandedNodes(), graph));
+                    out.close();
+                    fstream.close();
 
                     PathSegment segment = result.getPath();
                     segment.setStartWaypoint(orderdWaypoints.get(i));
@@ -238,6 +247,12 @@ public class Application {
                 String segmentName = orderdWaypoints.get(0).getName() + " - " + orderdWaypoints.get(1).getName();
                 AStarResult result = AStarAlgorithm.search(graph, start, end, segmentName, w, 0, Application.lsiWeights, weightedLsi, visitedEdges, reduceDoubleEdges);
                 result.print();
+                FileWriter fstream = new FileWriter("Exp "+segmentName+".txt");
+                BufferedWriter out = new BufferedWriter(fstream);
+                out.write(DORENDABuilder.build(result.getExpandedNodes(), graph));
+                out.close();
+                fstream.close();
+
                 PathSegment segment = result.getPath();
                 segment.setStartWaypoint(orderdWaypoints.get(0));
                 segment.setEndWaypoint(orderdWaypoints.get(1));
@@ -400,7 +415,7 @@ public class Application {
         Node startNode = graph.findClosest(places.get(0), false);
         Node endNode = graph.findClosest(places.get((1)), false);
         System.out.println("==================================================");
-        System.out.println("Benchmark A-Star with weighted h");
+        System.out.println("Benchmark A-Star with limited open list");
         System.out.println("From " + start + " to " + end + " steps " + step);
         System.out.println(distance.calcDist(startNode, endNode));
         System.out.println("==================================================");
@@ -443,6 +458,8 @@ public class Application {
             System.out.println();
         }
     }
+
+    //TODO: Benchmark genetic
 
     static void compareTSP() {
         List<Waypoint> waypoints;

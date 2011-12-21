@@ -2,9 +2,9 @@ package ohm.roth.dorenda;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
-import ohm.roth.Path;
-import ohm.roth.PathSegment;
-import ohm.roth.Waypoint;
+import ohm.roth.*;
+
+import java.util.List;
 
 import static java.awt.Color.*;
 
@@ -48,6 +48,21 @@ public class DORENDABuilder {
             dorendaLine line = new dorendaLine(BLUE, dorendaLine.Markers.No_Marker);
             line.addLineString(lineString);
             doc.addLine(line);
+
+        return doc.toString();
+    }
+
+    public static String build(List<String> list, NavGraph graph) {
+        dorendaDocument doc = new dorendaDocument();
+        
+
+        for (String curr : list) {
+            Edge currEde = graph.getEdgeList().get(curr);
+            dorendaLine line = new dorendaLine(BLUE, dorendaLine.Markers.No_Marker);
+            line.addLineString(currEde.getEdgeGeo());
+            doc.addLine(line);
+        }
+
 
         return doc.toString();
     }

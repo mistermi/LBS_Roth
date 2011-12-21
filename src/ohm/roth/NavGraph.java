@@ -227,36 +227,7 @@ public class NavGraph implements Serializable {
             this.getEdgeList().get(bEdge.getFrom() + "___" + bNode.getId()).setGeo(this.getGeo(bGeo));
             this.getEdgeList().get(bNode.getId() + "___" + bEdge.getTo()).setGeo(this.getGeo(bGeo));
             this.getEdgeList().get(bEdge.getTo() + "___" + bNode.getId()).setGeo(this.getGeo(bGeo));
-
-            /*try {
-                FileOutputStream fos;
-                fos = new FileOutputStream("addpoint.txt");
-                OutputStreamWriter out2 = new OutputStreamWriter(fos);
-                Edge e = this.getEdgeList().get(bEdge.getFrom() + "___" + bNode.getId());
-                out2.write("LINE mode=1 col=0,0,255,75\n");
-                for (Coordinate pos : e.getEdgeGeo().getCoordinates()) {
-                    out2.write(pos.x + "," + pos.y + "\n");
-                }
-                e = this.getEdgeList().get(bNode.getId() + "___" + bEdge.getTo());
-                out2.write("LINE mode=1 col=0,0,255,75\n");
-                for (Coordinate pos : e.getEdgeGeo().getCoordinates()) {
-                    out2.write(pos.x + "," + pos.y + "\n");
-                }
-
-                out2.write("POSITIONS col=255,0,0,100 rad=15\n");
-                out2.write(bNode.getPosition().x + "," + bNode.getPosition().y + "\n");
-
-                out2.write("POSITIONS col=255,255,0,100 rad=15\n");
-                out2.write(p.x + "," + p.y + "\n");
-
-                out2.close();
-                fos.close();
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
-            }*/
-
         }
-
         return getNode(bNode.getId());
     }
 

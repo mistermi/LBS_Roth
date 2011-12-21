@@ -29,6 +29,8 @@ public class AStarAlgorithm {
         double time = System.currentTimeMillis();
         List<String> expandedEdges = new ArrayList<String>();
         SortableValueMap<String, AStarNode> openSet = new SortableValueMap<String, AStarNode>(openSetLimit);
+
+        //TODO: keine sortierte liste
         SortableValueMap<String, AStarNode> closeSet = new SortableValueMap<String, AStarNode>(openSetLimit);
         AStarNode start = new AStarNode(source);
         openSet.put(source.getId(), start);
@@ -54,10 +56,12 @@ public class AStarAlgorithm {
                     double edgeCost = neighborEdge.getCost();
                     double g = x.getG() + edgeCost;
                     double h = distance.calcDist(neighbor, target) * w;
-                    if (useVisited)
-                        if (visitedEdges.contains(neighborEdge.getId())) h *= visitedW;
-                    if (useVisited)
-                        if (!visitedEdges.contains(neighborEdge.getId())) visitedEdges.add(neighborEdge.getId());
+                    if (useVisited) {
+                        if (visitedEdges.contains(neighborEdge.getId())) {
+                            h *= visitedW;
+                        } else visitedEdges.add(neighborEdge.getId());
+                    }
+
                     if (useLsiWeight)
                         if (lsiWeight.containsKey(neighborEdge.getGeo().getLsiclass()))
                             h *= lsiWeight.get(neighborEdge.getGeo().getLsiclass());

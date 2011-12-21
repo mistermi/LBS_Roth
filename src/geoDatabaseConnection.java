@@ -132,8 +132,6 @@ public class geoDatabaseConnection {
         resultSet = statement.executeQuery(Query);
         while (resultSet.next()) {
             String gao_id = resultSet.getString("gaoid");
-            if (!graph.getGeoList().containsKey(gao_id)) System.out.println("FOOOO");
-            // Nodes (sollten eigentlich schon exestieren aber ... sicher ist sicher)
             Position fromPoint = new Position(resultSet.getDouble("from_long"), resultSet.getDouble("from_lat"));
             String fromId = resultSet.getString("from_id");
             String toId = resultSet.getString("to_id");
