@@ -17,17 +17,11 @@ public class Path {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setName(String name) { this.name = name; }
 
-    public List<PathSegment> getSegments() {
-        return segments;
-    }
+    public List<PathSegment> getSegments() { return segments; }
 
     public void setSegments(List<PathSegment> segments) {
         this.segments = segments;
@@ -46,11 +40,11 @@ public class Path {
         return retList;
     }
 
-    public LineString getGeoLineString() {
+    public LineString getGeoLineString(boolean includingWaypoints) {
         GeometryFactory fac = new GeometryFactory();
         List<Coordinate> coords = new ArrayList<Coordinate>();
         for (PathSegment seg : this.segments) {
-            coords.addAll(seg.getSegmentCoordinates(true));
+            coords.addAll(seg.getSegmentCoordinates(includingWaypoints));
         }
 
         Coordinate[] coordarray = coords.toArray(new Coordinate[coords.size()]);

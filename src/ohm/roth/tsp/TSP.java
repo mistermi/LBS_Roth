@@ -12,7 +12,6 @@ public class TSP {
         GENETIC_MED,
         GENETIC_GOOD,
         ORGINAL,
-        BRUTE_FORCE,
         CLOSEST_NEIGHBOR
     }
 
@@ -20,8 +19,6 @@ public class TSP {
         switch (typ) {
             case CLOSEST_NEIGHBOR:
                 return closestNeighbor(places);
-            case BRUTE_FORCE:
-                return bruteForce(places);
             case ORGINAL:
                 return places;
             case GENETIC_QUICK:

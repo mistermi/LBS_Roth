@@ -48,7 +48,6 @@ public class PathSegment {
         while (currNode != null) {
             if (currNode.getNextEdge() != null) {
                 for (Coordinate coord : currNode.getNextEdge().getEdgeGeo().getCoordinates()) {
-                    //if (lastCoord != null && !coord.equals(lastCoord))
                     coords.add(coord);
                 }
             }

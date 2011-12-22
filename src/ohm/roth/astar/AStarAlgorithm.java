@@ -10,32 +10,30 @@ public class AStarAlgorithm {
     public static double defaultW = 1;
     public static double visitedW = 200;
 
-    public static AStarResult search(NavGraph graph, Node source, Node target, String name) {
+
+    public static AStarResult search(NavGraph graph, Node source, Node target, String name) throws Exception {
         return search(graph, source, target, name, defaultW, 0, null, false, null, false);
     }
 
-    public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w) {
+    public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w) throws Exception {
         return search(graph, source, target, name, w, 0, null, false, null, false);
     }
 
-    public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w, int limit) {
+    public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w, int limit) throws Exception {
         return search(graph, source, target, name, w, limit, null, false, null, false);
     }
 
-    public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w, int openSetLimit, HashMap<String, Double> lsiWeight, boolean useLsiWeight, List<String> visitedEdges, boolean useVisited) {
+    public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w, int openSetLimit, HashMap<String, Double> lsiWeight, boolean useLsiWeight, List<String> visitedEdges, boolean useVisited) throws Exception {
         int expNodes = 1;
         int pathNodes = 0;
         double time_sort = 0;
         double time = System.currentTimeMillis();
         List<String> expandedEdges = new ArrayList<String>();
         SortableValueMap<String, AStarNode> openSet = new SortableValueMap<String, AStarNode>(openSetLimit);
-
-        //TODO: keine sortierte liste
-        SortableValueMap<String, AStarNode> closeSet = new SortableValueMap<String, AStarNode>(openSetLimit);
+        HashMap<String, AStarNode> closeSet = new HashMap<String, AStarNode>();
         AStarNode start = new AStarNode(source);
         openSet.put(source.getId(), start);
         AStarNode goal = null;
-
         while (openSet.size() > 0) {
             double time_sort_curr = System.currentTimeMillis();
             openSet.sortByValue();
@@ -56,15 +54,9 @@ public class AStarAlgorithm {
                     double edgeCost = neighborEdge.getCost();
                     double g = x.getG() + edgeCost;
                     double h = distance.calcDist(neighbor, target) * w;
-                    if (useVisited) {
-                        if (visitedEdges.contains(neighborEdge.getId())) {
-                            h *= visitedW;
-                        } else visitedEdges.add(neighborEdge.getId());
-                    }
-
-                    if (useLsiWeight)
-                        if (lsiWeight.containsKey(neighborEdge.getGeo().getLsiclass()))
-                            h *= lsiWeight.get(neighborEdge.getGeo().getLsiclass());
+                    if (useVisited && visitedEdges.contains(neighborEdge.getId())) h *= visitedW;
+                    if (useVisited && !visitedEdges.contains(neighborEdge.getId())) visitedEdges.add(neighborEdge.getId());
+                    if (useLsiWeight && lsiWeight.containsKey(neighborEdge.getGeo().getLsiclass())) h *= lsiWeight.get(neighborEdge.getGeo().getLsiclass());
                     double f = g + h;
                     AStarNode n = openSet.get(neighbor.getId());
                     if (n == null) {
@@ -120,7 +112,7 @@ public class AStarAlgorithm {
                     retPath,
                     name);
         }
-        return null;
+        throw new Exception("No Way Found for " + name);
     }
 
 }

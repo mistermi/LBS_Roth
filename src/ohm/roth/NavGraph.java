@@ -9,33 +9,33 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 @SuppressWarnings({"ConstantConditions"})
 public class NavGraph implements Serializable {
-    public String name;
-    public HashMap<String, Node> nodeList;
-    public HashMap<String, Geometry> geoList;
-    public HashMap<String, Edge> edgeList;
+    private String name;
+    private Date genDate;
+    private int endPoints = 0;
+    private HashMap<String, Node> nodeList;
+    private HashMap<String, Geometry> geoList;
+    private HashMap<String, Edge> edgeList;
 
     public NavGraph(String name) {
         nodeList = new HashMap<String, Node>();
         geoList = new HashMap<String, Geometry>();
         edgeList = new HashMap<String, Edge>();
         this.name = name;
+        genDate = new Date();
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getFileName() { return name+".DAT"; }
 
     //geoList
     public void addGeo(String id, Geometry geo) {
@@ -51,9 +51,7 @@ public class NavGraph implements Serializable {
         return geoList;
     }
 
-    public void setGeoList(HashMap<String, Geometry> geoList) {
-        this.geoList = geoList;
-    }
+    public int getGeometryCount() { return geoList.size(); }
 
     // nodelist
     public void addNode(String id, Position pos, String geoId, int geoPos) {
@@ -66,7 +64,6 @@ public class NavGraph implements Serializable {
             }
     }
 
-
     public Node getNode(String id) {
         return this.nodeList.get(id);
     }
@@ -75,9 +72,7 @@ public class NavGraph implements Serializable {
         return nodeList;
     }
 
-    public void setNodeList(HashMap<String, Node> nodeList) {
-        this.nodeList = nodeList;
-    }
+    public int getNodeCount() { return nodeList.size(); }
 
     // edgelist
     public void addEdge(Edge e) {
@@ -88,9 +83,8 @@ public class NavGraph implements Serializable {
         return edgeList;
     }
 
-    public void setEdgeList(HashMap<String, Edge> edgeList) {
-        this.edgeList = edgeList;
-    }
+    public int getEdgeCount() { return edgeList.size(); }
+
 
     public void initGraph() {
         for (Edge edge : this.edgeList.values()) {
@@ -116,6 +110,7 @@ public class NavGraph implements Serializable {
             edge.setEdgeGeo(fac.createLineString(coordinates));
         }
     }
+
 
     public Node findClosest(Position p, boolean useGeo) {
         if (useGeo) {
@@ -231,6 +226,7 @@ public class NavGraph implements Serializable {
         return getNode(bNode.getId());
     }
 
+
     public void dumpGraph(String filename) throws IOException {
         FileOutputStream fos;
         List<String> fooo = new ArrayList<String>();
@@ -254,6 +250,7 @@ public class NavGraph implements Serializable {
         fos.close();
     }
 
+
     public void addConnection(String firstId, String secondId, double c, String gao, int firstPos, int secondPos) {
         Node node1 = this.getNode(firstId);
         Node node2 = this.getNode(secondId);
@@ -265,5 +262,79 @@ public class NavGraph implements Serializable {
             }
 
         }
+    }
+
+    // EndPoints
+    public void addEndPoints() {
+        System.out.println("Adding Geo End Points");
+        for (ohm.roth.Geometry geo : this.geoList.values()) {
+            if (geo.getConnectedNodes().size() == 0)
+                System.out.println("Empty Geometry");
+            // Check for First & Last Point
+            boolean firstValid = false;
+            boolean lastValid = false;
+            for (NodeGeoLink link : geo.getConnectedNodes().values()) {
+                if (link.getGeoPos() == 0) {
+                    firstValid = true;
+                }
+                if (link.getGeoPos() == geo.getGeometry().getNumPoints() - 1) {
+                    lastValid = true;
+                }
+            }
+
+            // Insert First Point
+            if (!firstValid) {
+                String nodeId = "FIRST" + UUID.randomUUID().toString();
+                endPoints++;
+                int smallID = geo.getGeometry().getNumPoints();
+                NodeGeoLink goodNode = null;
+                for (NodeGeoLink link : geo.getConnectedNodes().values()) {
+                    if (link.getGeoPos() < smallID) {
+                        smallID = link.getGeoPos();
+                        goodNode = link;
+                    }
+                }
+                this.addNode(nodeId, new Position(geo.getGeometry().getStartPoint().getX(), geo.getGeometry().getStartPoint().getY()), geo.getId(), 0);
+                if (goodNode != null) {
+                    double dis = distance.distanceLinestring(geo.getGeometry(), 0, goodNode.getGeoPos());
+                    this.addConnection(goodNode.getNode().getId(), nodeId, dis, geo.getId(), smallID, 0);
+                    this.addConnection(nodeId, goodNode.getNode().getId(), dis, geo.getId(), 0, smallID);
+                } else {
+                    System.out.println("FU START");
+                }
+            }
+
+            // Insert Last Point
+            if (!lastValid) {
+                String nodeId = "LAST" + UUID.randomUUID().toString();
+                endPoints++;
+                int smallID = -1;
+                NodeGeoLink goodNode = null;
+                for (NodeGeoLink link : geo.getConnectedNodes().values()) {
+                    if (link.getGeoPos() > smallID) {
+                        smallID = link.getGeoPos();
+                        goodNode = link;
+                    }
+                }
+                this.addNode(nodeId, new Position(geo.getGeometry().getEndPoint().getX(), geo.getGeometry().getEndPoint().getY()), geo.getId(), geo.getGeometry().getNumPoints() - 1);
+                if (goodNode != null) {
+                    double dis = distance.distanceLinestring(geo.getGeometry(), geo.getGeometry().getNumPoints() - 1, goodNode.getGeoPos());
+                    this.addConnection(goodNode.getNode().getId(), nodeId, dis, geo.getId(), smallID, geo.getGeometry().getNumPoints() - 1);
+                    this.addConnection(nodeId, goodNode.getNode().getId(), dis, geo.getId(), geo.getGeometry().getNumPoints() - 1, smallID);
+                } else {
+                    System.out.println("FU START");
+                }
+            }
+        }
+    }
+
+    public int getEndPoints() { return endPoints; }
+
+    // Generation Date
+    public Date getGenDate() { return genDate; }
+
+    public String getGenDateString() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        return (dateFormat.format(genDate));
     }
 }

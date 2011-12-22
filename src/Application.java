@@ -1,4 +1,3 @@
-import com.vividsolutions.jts.geom.LineString;
 import ohm.roth.*;
 import ohm.roth.astar.AStarAlgorithm;
 import ohm.roth.astar.AStarResult;
@@ -7,10 +6,7 @@ import ohm.roth.gpx.GPXBuilder;
 import ohm.roth.tsp.TSP;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * User: mischarohlederer
@@ -29,38 +25,35 @@ public class Application {
     static String dbuser;
     static String dbpasswd;
     static String dbname;
-    static String graphname = "NBG";
+    static String graphname;
+    static String boundingBoxFile;
     static String lsiWeightsFilename = "lsi_foot.csv";
 
-    static Position[] boundingBox;
     static TSP.tspType defaultTspType = TSP.tspType.GENETIC_GOOD;
     static HashMap<String, Double> lsiWeights;
 
-    // Menus
+    /**
+     * Ausgabe des Hauptmenüs
+     */
     static void mainMenu() {
         System.out.println("============================================================");
         System.out.println("Roth LBS Aufgabe 2011");
         System.out.println("Fuchs Daniel, Rohlederer Mischa");
         System.out.println("============================================================");
+        System.out.println();
         AStarAlgorithm.defaultW = 1;
-        AStarAlgorithm.visitedW = 2;
+        AStarAlgorithm.visitedW = 20;
 
-        // Datenbank zugang
+
+        // Default Graph
         File file = new File(Application.graphname + ".DAT");
         if (file.exists()) {
             Application.loadGraph_File(graphname);
         } else {
-            Application.loadGraph_Database(boundingBox, graphname);
+            Application.loadGraph_Database(boundingBoxFile, graphname);
         }
 
-
-
-        double time_init = System.currentTimeMillis();
-        Application.println("Init Graph");
-        graph.initGraph();
-        time_init = (System.currentTimeMillis() - time_init) / 1000;
-        Application.println("Init Graph took " + time_init + " Secs");
-
+        // LSI Weights
         try {
             Application.lsiWeights = new HashMap<String, Double>();
             lsiWeights = CSV.readLSIWeight(Application.lsiWeightsFilename);
@@ -73,9 +66,11 @@ public class Application {
             System.out.println();
             System.out.println("============================================================");
             System.out.println("Please Make a selection:");
+            System.out.println("Loaded Graph: " + graph.getName());
             System.out.println("============================================================");
             System.out.println("[1] Build Path");
             System.out.println("[2] Benchmarks");
+            System.out.println("[3] Graph");
             System.out.println("[0] exit");
             System.out.print("Select: ");
             int menu = scan.nextInt();
@@ -86,6 +81,9 @@ public class Application {
                 case 2:
                     benchmarkMenu();
                     break;
+                case 3:
+                    graphMenu();
+                    break;
                 case 0:
                     quit = true;
                     break;
@@ -95,6 +93,9 @@ public class Application {
         System.exit(0);
     }
 
+    /**
+     * Ausgabe des Menüs um einen Pfad zu suchen
+     */
     static void pathMenu() {
         boolean quit = false;
         do {
@@ -107,7 +108,7 @@ public class Application {
             System.out.println("[2] Reduce Double Edges");
             System.out.println("[3] Reduce Double Edges & and use LSI Weights");
             System.out.println("[0] back");
-            System.out.println("Selection: ");
+            System.out.print("Selection: ");
             int menu = scan.nextInt();
             String name, filename;
             double w;
@@ -172,8 +173,9 @@ public class Application {
         Application.println("");
 
         // Rundweg
+        double time_tsp = 0;
         if (waypoints.size() > 2) {
-            double time_tsp = System.currentTimeMillis();
+            time_tsp = System.currentTimeMillis();
             Application.println("Running TSP with " + (waypoints.size()) + " Points");
             orderdWaypoints = TSP.sort(waypoints, defaultTspType);
             time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
@@ -183,7 +185,7 @@ public class Application {
             orderdWaypoints = waypoints;
         }
         try {
-            FileWriter fstream = new FileWriter(name + "-TSP.GPX");
+            FileWriter fstream = new FileWriter(new File(name + "_TSP.GPX"));
             BufferedWriter out = new BufferedWriter(fstream);
             out.write(GPXBuilder.build(orderdWaypoints, ""));
             out.close();
@@ -192,17 +194,15 @@ public class Application {
         }
 
 
-        //TODO: Ausgabe des TSP in dorenda
-
         // Cosest points
         System.out.println("Finding nearest Node for " + (orderdWaypoints.size()) + " Points");
-        double nearest_time = System.currentTimeMillis();
+        double time_nearest = System.currentTimeMillis();
         Node[] waynotes = new Node[orderdWaypoints.size()];
         for (int i = 0; i < orderdWaypoints.size(); i++) {
             waynotes[i] = graph.findClosest(orderdWaypoints.get(i), true);
         }
-        nearest_time = (System.currentTimeMillis() - nearest_time) / 1000;
-        System.out.println("Finding Nodes took " + nearest_time + " Secs");
+        time_nearest = (System.currentTimeMillis() - time_nearest) / 1000;
+        System.out.println("Finding Nodes took " + time_nearest + " Secs");
         System.out.println("");
 
         // A-Stern
@@ -223,11 +223,6 @@ public class Application {
                     String segmentName = orderdWaypoints.get(i).getName() + " - " + orderdWaypoints.get((i + 1) % (orderdWaypoints.size())).getName();
                     AStarResult result = AStarAlgorithm.search(graph, start, end, segmentName, w, 0, Application.lsiWeights, weightedLsi, visitedEdges, reduceDoubleEdges);
                     result.print();
-                    FileWriter fstream = new FileWriter("Exp "+segmentName+".txt");
-                    BufferedWriter out = new BufferedWriter(fstream);
-                    out.write(DORENDABuilder.build(result.getExpandedNodes(), graph));
-                    out.close();
-                    fstream.close();
 
                     PathSegment segment = result.getPath();
                     segment.setStartWaypoint(orderdWaypoints.get(i));
@@ -237,8 +232,7 @@ public class Application {
                 }
             } catch (Exception e) {
                 System.out.println("Error running A-Star: " + e.toString());
-                e.printStackTrace();
-                System.exit(1);
+                return;
             }
         } else {
             try {
@@ -247,12 +241,6 @@ public class Application {
                 String segmentName = orderdWaypoints.get(0).getName() + " - " + orderdWaypoints.get(1).getName();
                 AStarResult result = AStarAlgorithm.search(graph, start, end, segmentName, w, 0, Application.lsiWeights, weightedLsi, visitedEdges, reduceDoubleEdges);
                 result.print();
-                FileWriter fstream = new FileWriter("Exp "+segmentName+".txt");
-                BufferedWriter out = new BufferedWriter(fstream);
-                out.write(DORENDABuilder.build(result.getExpandedNodes(), graph));
-                out.close();
-                fstream.close();
-
                 PathSegment segment = result.getPath();
                 segment.setStartWaypoint(orderdWaypoints.get(0));
                 segment.setEndWaypoint(orderdWaypoints.get(1));
@@ -261,35 +249,46 @@ public class Application {
                 System.out.println(result.getPath().getLength());
             } catch (Exception e) {
                 System.out.println("Error running A-Star: " + e.toString());
-                e.printStackTrace();
-                System.exit(1);
+                return;
             }
         }
         time_astar = (System.currentTimeMillis() - time_astar) / 1000;
         System.out.println();
-        System.out.println("A-Star took " + time_astar + " Secs");
-        System.out.println("Global Length: " + globalLength + " Meter");
-        System.out.println("Global Length (including Waypoints): " + distance.distanceLinestring(path.getGeoLineString()) + " Meter");
+        System.out.println("--------------------------------------------------");
+        System.out.println("Summary");
+        System.out.println();
+        System.out.println("Name: " + name);
+        System.out.println("Waypoints: " + waypoints.size());
+        System.out.println("Graphname: " + graph.getName());
+        System.out.println();
+        System.out.println("Times:");
+        System.out.println("Loading Waypoints: " + time_waypoints);
+        if (waypoints.size() > 2) System.out.println("TSP: " + time_tsp);
+        System.out.println("Finding Closest Points: " + time_nearest);
+        System.out.println("A-Star: " + time_astar);
+        System.out.println();
+        System.out.println("Global Length: " + distance.distanceLinestring(path.getGeoLineString(false)) + " Meter");
+        System.out.println("Global Length (including Waypoints): " + distance.distanceLinestring(path.getGeoLineString(true)) + " Meter");
+        System.out.println("--------------------------------------------------");
+        System.out.println();
 
         try {
-            LineString line = path.getGeoLineString();
-
-            FileWriter fstream = new FileWriter(name + "-Topo.GPX");
+            FileWriter fstream = new FileWriter(new File(name + "_Topo.GPX"));
             BufferedWriter out = new BufferedWriter(fstream);
             out.write(GPXBuilder.build(path.getTopoLineString(), path.getName()));
             out.close();
             fstream.close();
-            fstream = new FileWriter(name + "-Topo.txt");
+            fstream = new FileWriter(new File(name + "_Topo.txt"));
             out = new BufferedWriter(fstream);
             out.write(DORENDABuilder.build(path.getTopoLineString()));
             out.close();
             fstream.close();
-            fstream = new FileWriter(name + "-Geo.gpx");
+            fstream = new FileWriter(new File(name + "_Geo.gpx"));
             out = new BufferedWriter(fstream);
-            out.write(GPXBuilder.build(path.getGeoLineString(), path.getName()));
+            out.write(GPXBuilder.build(path.getGeoLineString(true), path.getName()));
             out.close();
             fstream.close();
-            fstream = new FileWriter(name + "-Geo.txt");
+            fstream = new FileWriter(new File(name + "_Geo.txt"));
             out = new BufferedWriter(fstream);
             out.write(DORENDABuilder.build(path));
             out.close();
@@ -314,11 +313,10 @@ public class Application {
             System.out.println("[1] Weighted A-Star");
             System.out.println("[2] A-Star with limited OpenList");
             System.out.println("[3] TSP Methodes");
+            System.out.println("[4] Genetic TSP Generations");
             System.out.println("[0] exit");
 
-            System.out.println("Selection: ");
-            System.out.print("Please enter your choice: ");
-            System.out.println();
+            System.out.print("Selection: ");
             int menu = scan.nextInt();
             switch (menu) {
                 case 1:
@@ -331,16 +329,29 @@ public class Application {
                     compareAStarW(graph, places, wStart, wEnd, wStep);
                     break;
                 case 2:
-                    System.out.print("Start W: ");
+                    System.out.print("Start Limit: ");
                     int lStart = scan.nextInt();
-                    System.out.print("End W: ");
+                    System.out.print("End Limit: ");
                     int lEnd = scan.nextInt();
                     System.out.print("Steps: ");
                     int lStep = scan.nextInt();
                     compareAStarLimitedOpen(graph, places, lStart, lEnd, lStep);
                     break;
                 case 3:
-                    compareTSP();
+                    System.out.print("Number of Points: ");
+                    int points = scan.nextInt();
+                    compareTSP(points);
+                    break;
+                case 4:
+                    System.out.print("Number of Points: ");
+                    int gpoints = scan.nextInt();
+                    System.out.print("Start Generations: ");
+                    int gStart = scan.nextInt();
+                    System.out.print("End Generations: ");
+                    int gEnd = scan.nextInt();
+                    System.out.print("Steps: ");
+                    int gStep = scan.nextInt();
+                    compareGeneticGens(gpoints, gStart, gEnd, gStep);
                     break;
                 case 0:
                     quit = true;
@@ -372,6 +383,7 @@ public class Application {
         try {
             compareResult = AStarAlgorithm.search(graph, startNode, endNode, "Compare", 1);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return;
         }
 
@@ -383,26 +395,21 @@ public class Application {
             try {
                 result = AStarAlgorithm.search(graph, startNode, endNode, "Compare " + curr, curr);
                 path.addSegment(result.getPath());
-            } catch (Exception e) {
-                return;
-            }
-            try {
                 FileWriter fstream = new FileWriter(curr + ".gpx");
                 BufferedWriter out = new BufferedWriter(fstream);
-                String gpx = GPXBuilder.build(path.getGeoLineString(), path.getName());
+                String gpx = GPXBuilder.build(path.getGeoLineString(true), path.getName());
                 out.write(gpx);
                 out.close();
                 fstream.close();
+                System.out.println("Result for w=" + curr);
+                System.out.println("Expanded Nodes: " + result.getExpandedNodes() + " (" + (result.getExpandedNodesCount() - compareResult.getExpandedNodesCount()) + ")");
+                System.out.println("Path Length: " + result.getPath().getLength() + " (" + (result.getPath().getLength() - compareResult.getPath().getLength()) + ")");
+                System.out.println("SortTime: " + result.getSorttime() + " (" + (result.getSorttime() - compareResult.getSorttime()) + ")");
+                System.out.println("Runtime: " + result.getRuntime() + " (" + (result.getRuntime() - compareResult.getRuntime()) + ")");
+                System.out.println();
             } catch (Exception e) {
-                return;
+                System.out.println(e.getMessage());
             }
-
-            System.out.println("Result for w=" + curr);
-            System.out.println("Expanded Nodes: " + result.getExpandedNodes() + " (" + (result.getExpandedNodesCount() - compareResult.getExpandedNodesCount()) + ")");
-            System.out.println("Path Length: " + result.getPath().getLength() + " (" + (result.getPath().getLength() - compareResult.getPath().getLength()) + ")");
-            System.out.println("SortTime: " + result.getSorttime() + " (" + (result.getSorttime() - compareResult.getSorttime()) + ")");
-            System.out.println("Runtime: " + result.getRuntime() + " (" + (result.getRuntime() - compareResult.getRuntime()) + ")");
-            System.out.println();
         }
     }
 
@@ -415,7 +422,7 @@ public class Application {
         Node startNode = graph.findClosest(places.get(0), false);
         Node endNode = graph.findClosest(places.get((1)), false);
         System.out.println("==================================================");
-        System.out.println("Benchmark A-Star with limited open list");
+        System.out.println("Benchmark A-Star with weighted h");
         System.out.println("From " + start + " to " + end + " steps " + step);
         System.out.println(distance.calcDist(startNode, endNode));
         System.out.println("==================================================");
@@ -425,6 +432,7 @@ public class Application {
         try {
             compareResult = AStarAlgorithm.search(graph, startNode, endNode, "Compare", 1, 0);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return;
         }
 
@@ -436,48 +444,36 @@ public class Application {
             try {
                 result = AStarAlgorithm.search(graph, startNode, endNode, "Compare " + curr, 1, curr);
                 path.addSegment(result.getPath());
-            } catch (Exception e) {
-                return;
-            }
-            try {
                 FileWriter fstream = new FileWriter(curr + ".gpx");
                 BufferedWriter out = new BufferedWriter(fstream);
-                String gpx = GPXBuilder.build(path.getGeoLineString(), path.getName());
+                String gpx = GPXBuilder.build(path.getGeoLineString(true), path.getName());
                 out.write(gpx);
                 out.close();
                 fstream.close();
+                System.out.println("Result for w=" + curr);
+                System.out.println("Expanded Nodes: " + result.getExpandedNodes() + " (" + (result.getExpandedNodesCount() - compareResult.getExpandedNodesCount()) + ")");
+                System.out.println("Path Length: " + result.getPath().getLength() + " (" + (result.getPath().getLength() - compareResult.getPath().getLength()) + ")");
+                System.out.println("SortTime: " + result.getSorttime() + " (" + (result.getSorttime() - compareResult.getSorttime()) + ")");
+                System.out.println("Runtime: " + result.getRuntime() + " (" + (result.getRuntime() - compareResult.getRuntime()) + ")");
+                System.out.println();
             } catch (Exception e) {
-                return;
+                System.out.println(e.getMessage());
             }
-
-            System.out.println("Result for w=" + curr);
-            System.out.println("Expanded Nodes: " + result.getExpandedNodes() + " (" + (result.getExpandedNodesCount() - compareResult.getExpandedNodesCount()) + ")");
-            System.out.println("Path Length: " + result.getPath().getLength() + " (" + (result.getPath().getLength() - compareResult.getPath().getLength()) + ")");
-            System.out.println("SortTime: " + result.getSorttime() + " (" + (result.getSorttime() - compareResult.getSorttime()) + ")");
-            System.out.println("Runtime: " + result.getRuntime() + " (" + (result.getRuntime() - compareResult.getRuntime()) + ")");
-            System.out.println();
         }
     }
 
-    //TODO: Benchmark genetic
-
-    static void compareTSP() {
+    static void compareTSP(int points) {
         List<Waypoint> waypoints;
         List<Waypoint> orderdWaypoints;
-        try {
-            waypoints = CSV.readWaypointList("01.csv");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
         System.out.println("==================================================");
         System.out.println("TSP Compare");
-        System.out.println("Number of Waypoints: " + waypoints.size());
+        System.out.println("Number of Waypoints: " + points);
         System.out.println("==================================================");
         System.out.println();
+        waypoints = random.randomWaypoints(points);
         for (TSP.tspType currTSP : TSP.tspType.values()) {
             double time_tsp = System.currentTimeMillis();
-            System.out.println("Running " + currTSP + " with " + (waypoints.size()) + " Points");
+            System.out.println("Running " + currTSP + " with " + (points) + " Points");
             try {
                 orderdWaypoints = TSP.sort(waypoints, currTSP);
                 time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
@@ -501,6 +497,114 @@ public class Application {
         System.out.println();
     }
 
+    static void compareGeneticGens(int points, int start, int end, int step) {
+        List<Waypoint> waypoints;
+        List<Waypoint> orderdWaypoints;
+        System.out.println("==================================================");
+        System.out.println("Genetic TSP Generation Compare");
+        System.out.println("Number of Waypoints: " + points);
+        System.out.println("From " + start + " to " + end + " steps " + step);
+        System.out.println("==================================================");
+        System.out.println();
+        waypoints = random.randomWaypoints(points);
+        for (int curr = start; curr<end; curr+=step) {
+            System.out.println("Running TSP with " + curr + " Generations");
+            try {
+                double time_tsp = System.currentTimeMillis();
+                orderdWaypoints = TSP.geneticAlgoPara(waypoints, 25, curr, 0);
+                time_tsp = (System.currentTimeMillis() - time_tsp) / 1000;
+                FileWriter fstream;
+                try {
+                    fstream = new FileWriter("Genetic_" + curr + ".GPX");
+                    BufferedWriter out = new BufferedWriter(fstream);
+                    out.write(GPXBuilder.build(orderdWaypoints, "Genetic_" + curr));
+                    out.close();
+                } catch (IOException e) {
+                    System.out.println("Error writing GPX File");
+                }
+                System.out.println("Path length: " + distance.distanceList(orderdWaypoints));
+                System.out.println("Generations:" + curr + " took " + time_tsp + " Secs");
+                System.out.println();
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                System.out.println();
+            }
+        }
+        System.out.println();
+    }
+
+    // Graph Options
+    static void graphMenu() {
+        boolean quit = false;
+        do {
+            System.out.println("==================================================");
+            System.out.println("Graph");
+            System.out.println("==================================================");
+            System.out.println();
+            System.out.println("Please Make a selection:");
+            System.out.println("[1] Graph Informationen");
+            System.out.println("[2] Dump Graph (Dorenda)");
+            System.out.println("[3] Load Graph from File");
+            System.out.println("[4] Load Graph from DB");
+            System.out.println("[0] exit");
+
+            System.out.print("Selection: ");
+            int menu = scan.nextInt();
+            String name, file;
+            switch (menu) {
+                case 1:
+                    graphInformation();
+                    break;
+                case 2:
+                    System.out.print("Filename: ");
+                    file = scan.next();
+                    try {
+                        graph.dumpGraph(file);
+                    } catch (IOException e) {
+                        System.out.println("Error while writing File (" + e.getMessage() + ")");
+                    }
+                    break;
+                case 3:
+                    System.out.print("Graphname: ");
+                    name = scan.next();
+                    loadGraph_File(name);
+                    break;
+                case 4:
+                    System.out.print("Graphname: ");
+                    name = scan.next();
+                    System.out.print("Boundingbox File: ");
+                    file = scan.next();
+                    loadGraph_Database(file, name);
+                    break;
+                case 0:
+                    quit = true;
+                    break;
+                default:
+                    System.out.println("Invalid Entry!");
+            }
+        }
+        while (!quit);
+    }
+
+    static void graphInformation() {
+        System.out.println("==================================================");
+        System.out.println("Graph Information");
+        System.out.println("==================================================");
+        System.out.println();
+        System.out.println("Name: " + graph.getName());
+        System.out.println("Date: " + graph.getGenDateString());
+        System.out.println("Nodes: " + graph.getNodeCount());
+        System.out.println("Edges: " + graph.getEdgeCount());
+        System.out.println("Geometrys: " + graph.getGeometryCount());
+        System.out.println("End Points: " + graph.getGeometryCount());
+        try {
+            File file = new File(graph.getFileName());
+            System.out.println("File Size: " + file.length() + "Byte");
+        } catch (Exception e) {
+            System.out.println("Error while getting File Information (" + e.getMessage() + ")");
+        }
+    }
+
     // Graph loader
     static void loadGraph_File(String filename) {
         // Graph aus Datei laden
@@ -520,12 +624,27 @@ public class Application {
             obj_in.close();
             fis.close();
             time_graph = (System.currentTimeMillis() - time_graph) / 1000;
+            double time_init = System.currentTimeMillis();
+            Application.println("Init Graph");
+            graph.initGraph();
+            time_init = (System.currentTimeMillis() - time_init) / 1000;
+            Application.println("Init Graph took " + time_init + " Secs");
             Application.println("Fetching Data and building graph took: " + time_graph + "sec");
             Application.println("============================================================");
         } catch (Exception e) {
             Application.println("Error: " + e.toString());
             e.printStackTrace();
             System.exit(1);
+        }
+    }
+
+    static void loadGraph_Database(String bBoxFile, String name) {
+        Position[] boundingBox;
+        try {
+            boundingBox = CSV.readPositionArray(bBoxFile);
+            loadGraph_Database(boundingBox, name);
+        } catch (Exception e) {
+            System.out.println("Error while reading File");
         }
     }
 
@@ -549,6 +668,11 @@ public class Application {
             fos.close();
             time_graph = (System.currentTimeMillis() - time_graph) / 1000;
             Application.println("Fetching Data and building graph took: " + time_graph + "sec");
+            double time_init = System.currentTimeMillis();
+            Application.println("Init Graph");
+            graph.initGraph();
+            time_init = (System.currentTimeMillis() - time_init) / 1000;
+            Application.println("Init Graph took " + time_init + " Secs");
             Application.println("============================================================");
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
@@ -557,7 +681,14 @@ public class Application {
         }
     }
 
+
+    /**
+     * Gibt einen String aus sollte das Programm im Verbose Modus laufen
+     * @param line Der auszugebende String
+     */
     static void println(String line) {
         if (verbose) System.out.println(line);
     }
+
+
 }

@@ -82,8 +82,8 @@ public class distance {
 
     public static double distanceList(List<Waypoint> list) {
         double l = 0;
-        for (int i = 1; i < list.size(); i++) {
-            l += distance.calcDist(list.get(i - 1), list.get(i % list.size()));
+        for (int i = 1; i < list.size()-1; i++) {
+            l += distance.calcDist(list.get(i - 1), list.get(i));
         }
         return l;
     }

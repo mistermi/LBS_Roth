@@ -18,8 +18,7 @@ public class geoDatabaseConnection {
 
     private Connection connection = null;
 
-    public geoDatabaseConnection(String dbhost, int dbport, String dbuser,
-                                 String dbpasswd, String dbname) {
+    public geoDatabaseConnection(String dbhost, int dbport, String dbuser, String dbpasswd, String dbname) {
         super();
         this.dbhost = dbhost;
         this.dbport = dbport;
@@ -53,7 +52,7 @@ public class geoDatabaseConnection {
         //Nodes and Geometry
         System.out.println("Fetching Node & Geometry Data");
         if (boundingCoords.length < 2) {
-            throw new Exception("FU");
+            throw new Exception("Boundingbox need at least 2 Coordinates");
         } else if (boundingCoords.length == 2) {
             Coordinate[] coords = new Coordinate[5];
             coords[0] = new Coordinate(boundingCoords[0].x, boundingCoords[0].y);
@@ -145,68 +144,7 @@ public class geoDatabaseConnection {
         }
 
         // Geometrische Endpunkte einfügen
-        System.out.println("Adding Geo End Points");
-        int addedPoints = 0;
-        for (ohm.roth.Geometry geo : graph.geoList.values()) {
-            if (geo.getConnectedNodes().size() == 0)
-                System.out.println("Empty Geometry");
-            // Check for First & Last Point
-            boolean firstValid = false;
-            boolean lastValid = false;
-            for (NodeGeoLink link : geo.getConnectedNodes().values()) {
-                if (link.getGeoPos() == 0) {
-                    firstValid = true;
-                }
-                if (link.getGeoPos() == geo.getGeometry().getNumPoints() - 1) {
-                    lastValid = true;
-                }
-            }
-
-            // Insert First Point
-            if (!firstValid) {
-                String nodeId = "FIRST" + UUID.randomUUID().toString();
-                addedPoints++;
-                int smallID = geo.getGeometry().getNumPoints();
-                NodeGeoLink goodNode = null;
-                for (NodeGeoLink link : geo.getConnectedNodes().values()) {
-                    if (link.getGeoPos() < smallID) {
-                        smallID = link.getGeoPos();
-                        goodNode = link;
-                    }
-                }
-                graph.addNode(nodeId, new Position(geo.getGeometry().getStartPoint().getX(), geo.getGeometry().getStartPoint().getY()), geo.getId(), 0);
-                if (goodNode != null) {
-                    double dis = distance.distanceLinestring(geo.getGeometry(), 0, goodNode.getGeoPos());
-                    graph.addConnection(goodNode.getNode().getId(), nodeId, dis, geo.getId(), smallID, 0);
-                    graph.addConnection(nodeId, goodNode.getNode().getId(), dis, geo.getId(), 0, smallID);
-                } else {
-                    System.out.println("FU START");
-                }
-            }
-
-            // Insert Last Point
-            if (!lastValid) {
-                String nodeId = "LAST" + UUID.randomUUID().toString();
-                addedPoints++;
-                int smallID = -1;
-                NodeGeoLink goodNode = null;
-                for (NodeGeoLink link : geo.getConnectedNodes().values()) {
-                    if (link.getGeoPos() > smallID) {
-                        smallID = link.getGeoPos();
-                        goodNode = link;
-                    }
-                }
-                graph.addNode(nodeId, new Position(geo.getGeometry().getEndPoint().getX(), geo.getGeometry().getEndPoint().getY()), geo.getId(), geo.getGeometry().getNumPoints() - 1);
-                if (goodNode != null) {
-                    double dis = distance.distanceLinestring(geo.getGeometry(), geo.getGeometry().getNumPoints() - 1, goodNode.getGeoPos());
-                    graph.addConnection(goodNode.getNode().getId(), nodeId, dis, geo.getId(), smallID, geo.getGeometry().getNumPoints() - 1);
-                    graph.addConnection(nodeId, goodNode.getNode().getId(), dis, geo.getId(), geo.getGeometry().getNumPoints() - 1, smallID);
-                } else {
-                    System.out.println("FU START");
-                }
-            }
-        }
-        resultSet.close();
+        graph.addEndPoints();
         return graph;
     }
 }
