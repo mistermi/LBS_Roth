@@ -21,11 +21,21 @@ class CSV {
         BufferedReader in = new BufferedReader(new InputStreamReader(fis));
         Waypoint currWaypoint;
         String strLine;
+        int i = 1;
         while ((strLine = in.readLine()) != null) {
             String[] strArr = strLine.split(",");
-            String name = strArr[0];
-            double lon = Double.valueOf(strArr[1]);
-            double lat = Double.valueOf(strArr[2]);
+            String name;
+            double lon, lat;
+            if (strArr.length > 2) {
+                name = strArr[0];
+                lon = Double.valueOf(strArr[1]);
+                lat = Double.valueOf(strArr[2]);
+            } else {
+                name = "Punkt " + i;
+                lon = Double.valueOf(strArr[0]);
+                lat = Double.valueOf(strArr[1]);
+            }
+            i++;
             currWaypoint = new Waypoint(name, lon, lat);
             retList.add(currWaypoint);
         }

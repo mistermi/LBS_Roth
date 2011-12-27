@@ -6,23 +6,70 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Klasse für das Finden des kürzesten Weges auf einem Graph via A-Stern
+ */
 public class AStarAlgorithm {
     public static double defaultW = 1;
     public static double visitedW = 200;
 
-
+    /**
+     * Findet den kürzesten Weg zwischen "source" und "target" auf dem gegeben Graphen
+     * @param graph
+     * @param source
+     * @param target
+     * @param name
+     * @return
+     * @throws Exception
+     */
     public static AStarResult search(NavGraph graph, Node source, Node target, String name) throws Exception {
         return search(graph, source, target, name, defaultW, 0, null, false, null, false);
     }
 
+    /**
+     * Findet den kürzesten Weg zwischen "source" und "target" auf dem gegeben Graphen
+     * @param graph
+     * @param source
+     * @param target
+     * @param name
+     * @param w
+     * @return
+     * @throws Exception
+     */
     public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w) throws Exception {
         return search(graph, source, target, name, w, 0, null, false, null, false);
     }
 
+    /**
+     *
+     * @param graph
+     * @param source
+     * @param target
+     * @param name
+     * @param w
+     * @param limit
+     * @return
+     * @throws Exception
+     */
     public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w, int limit) throws Exception {
         return search(graph, source, target, name, w, limit, null, false, null, false);
     }
 
+    /**
+     *
+     * @param graph
+     * @param source
+     * @param target
+     * @param name
+     * @param w
+     * @param openSetLimit
+     * @param lsiWeight
+     * @param useLsiWeight
+     * @param visitedEdges
+     * @param useVisited
+     * @return
+     * @throws Exception
+     */
     public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w, int openSetLimit, HashMap<String, Double> lsiWeight, boolean useLsiWeight, List<String> visitedEdges, boolean useVisited) throws Exception {
         int expNodes = 1;
         int pathNodes = 0;

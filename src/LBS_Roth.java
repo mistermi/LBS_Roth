@@ -12,9 +12,8 @@ public class LBS_Roth {
         Application.dbpasswd = "dbuser";
         Application.dbname = "deproDB2";
         // Graph
-        Application.graphname = "Nuernberg";
+        Application.graphname = "Wuerzburg";
         Application.boundingBoxFile = "Nuernberg_BoundingBox.csv";
-
 
         Application.mainMenu();
     }

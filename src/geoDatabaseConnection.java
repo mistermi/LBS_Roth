@@ -73,14 +73,19 @@ public class geoDatabaseConnection {
         statement = connection.createStatement();
         statement.setFetchSize(1000000000);
         resultSet = statement.executeQuery("SELECT " +
-                "domain.gao_id AS gaoid, domain.fullname AS gaoname, domain.geodata_line AS gaoline, domain.lsiclass AS gaolsi, " +
+                "domain.gao_id AS gaoid, domain.fullname AS gaoname, domain.geodata_line AS gaoline, " +
+                "domain.lsiclass AS gaolsi, " +
                 "crossing.id AS id, crossing.long AS lon, crossing.lat AS lat, crossing.posnr AS pos " +
                 "FROM " +
                 "domain, crossing " +
                 "WHERE " +
                 "domain.geometry='L' AND " +
                 "crossing.gao_id=domain.gao_id  AND" +
-                SQL.createIndexQuery(boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMinX(), boundingBox.getMinY(), SQL.COMPLETELY_INSIDE)
+                SQL.createIndexQuery(boundingBox.getMaxX(),
+                        boundingBox.getMaxY(),
+                        boundingBox.getMinX(),
+                        boundingBox.getMinY(),
+                        SQL.COMPLETELY_INSIDE)
         );
         while (resultSet.next()) {
             // Geomerty Objects
@@ -116,7 +121,8 @@ public class geoDatabaseConnection {
         statement.setFetchSize(1000000);
         String Query = "SELECT "
                 + "link.id AS linkid, link.meters AS costs, link.gao_id AS gaoid, "
-                + "from_cross.id AS from_id, from_cross.long AS from_long, from_cross.lat AS from_lat, from_cross.posnr AS from_pos, "
+                + "from_cross.id AS from_id, " +
+                "from_cross.long AS from_long, from_cross.lat AS from_lat, from_cross.posnr AS from_pos, "
                 + "to_cross.id AS to_id, to_cross.long AS to_long, to_cross.lat AS to_lat, to_cross.posnr AS to_pos "
                 + "FROM "
                 + "link ,crossing AS from_cross, crossing AS to_cross, domain "
@@ -126,7 +132,11 @@ public class geoDatabaseConnection {
                 + "domain.gao_id = to_cross.gao_id AND "
                 + "domain.gao_id = from_cross.gao_id AND "
                 + "domain.gao_id = link.gao_id AND "
-                + SQL.createIndexQuery(boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMinX(), boundingBox.getMinY(), SQL.COMPLETELY_INSIDE)
+                + SQL.createIndexQuery(boundingBox.getMaxX(),
+                boundingBox.getMaxY(),
+                boundingBox.getMinX(),
+                boundingBox.getMinY(),
+                SQL.COMPLETELY_INSIDE)
                 + " ORDER BY link.id";
         resultSet = statement.executeQuery(Query);
         while (resultSet.next()) {

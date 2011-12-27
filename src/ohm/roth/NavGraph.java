@@ -145,12 +145,39 @@ public class NavGraph implements Serializable {
         for (Edge edge : this.edgeList.values()) {
             Node nodeTo = this.nodeList.get(edge.getTo());
             Node nodeFrom = this.nodeList.get(edge.getFrom());
-            if (nodeTo.getPosition().getLat() == p.getLat() && nodeTo.getPosition().getLon() == p.getLon())
-                return nodeTo;
-            if (nodeFrom.getPosition().getLat() == p.getLat() && nodeFrom.getPosition().getLon() == p.getLon())
-                return nodeFrom;
             if ((distance.calcDist(p,nodeFrom.getPosition()) + edge.getCost()) > distance.unitConvert(1000) || (distance.calcDist(p,nodeTo.getPosition()) + edge.getCost()) > distance.unitConvert(1000))
                 continue;
+            boolean sep = false;
+            List<Node> testNodes = new ArrayList<Node>();
+            List<Node> tmp = new ArrayList<Node>();
+            testNodes.add(this.getNode(edge.getFrom()));
+            testNodes.add(this.getNode(edge.getTo()));
+
+            for (int i = 0; i< 1; i++) {
+                for (Node test : testNodes) {
+                    if (test.neighbors.size() == 1) {
+                        sep = true;
+                        continue;
+                    }
+                }
+                if (sep) break;
+                tmp.clear();
+                tmp.addAll(testNodes);
+                testNodes.clear();
+                for (Node n : tmp) {
+                    for (Edge e : n.getNeighbors()) {
+                        testNodes.add(this.getNode(e.getTo()));
+                    }
+                }
+            }
+            if (sep) continue;
+            
+
+            if (nodeTo.getPosition().equals(p))
+                return nodeTo;
+            if (nodeFrom.getPosition().equals(p))
+                return nodeFrom;
+            
 
             for (int i = 0; i < edge.getEdgeGeo().getNumPoints() - 1; i++) {
                 Coordinate[] coords = new Coordinate[2];
@@ -208,6 +235,9 @@ public class NavGraph implements Serializable {
 
             }
             line2 = fac.createLineString(coordinates);
+            
+            Node t1 = this.getNode(bEdge.getTo());
+            Node t2 = this.getNode(bEdge.getFrom());
 
             addNode(bNode.getId(), bNode.getPosition(), bGeo, 0);
             addConnection(bNode.getId(), bEdge.getFrom(), distance.distanceLinestring(line1), bGeo, bEdge.getFromPos(), bEdge.getToPos());

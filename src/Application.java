@@ -6,7 +6,10 @@ import ohm.roth.gpx.GPXBuilder;
 import ohm.roth.tsp.TSP;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * User: mischarohlederer
@@ -150,7 +153,17 @@ public class Application {
         while (!quit);
     }
 
-    static void findPath(String filename, String name, double w, boolean loop, boolean reduceDoubleEdges, boolean weightedLsi) {
+    /**
+     * Sucht einen Rundweg zu Coordinaten aus einer angegebenen CSV Datei und gib Informationen zum gefundenen Pfad aus
+     *
+     * @param filename          Dateiname für die CSV Datei mit den Coordinaten
+     * @param name              Name für den Pfad
+     * @param w                 overdo Fakor für A-Stern
+     * @param loop              Gibt  an ob ein Rundweg erstellt werden soll
+     * @param reduceDoubleEdges Gibt an ob bereits besuchte Kanten schlechter Bewertet werden sollen
+     * @param weightedLsi       Gib an ob bestimmte LSI-Klassen anders bewertet werden sollen
+     */
+    public static void findPath(String filename, String name, double w, boolean loop, boolean reduceDoubleEdges, boolean weightedLsi) {
         Application.println("==================================================");
         Application.println("Finding Path");
         Application.println("Filename: " + filename);
@@ -298,7 +311,9 @@ public class Application {
         }
     }
 
-    // Benchmarks
+    /**
+     * Gibt das Benchmarks menü aus
+     */
     static void benchmarkMenu() {
         List<Position> places = new ArrayList<Position>();
         places.add(new Position(-10.99845000, 49.39349500));
@@ -507,7 +522,7 @@ public class Application {
         System.out.println("==================================================");
         System.out.println();
         waypoints = random.randomWaypoints(points);
-        for (int curr = start; curr<end; curr+=step) {
+        for (int curr = start; curr < end; curr += step) {
             System.out.println("Running TSP with " + curr + " Generations");
             try {
                 double time_tsp = System.currentTimeMillis();
@@ -684,6 +699,7 @@ public class Application {
 
     /**
      * Gibt einen String aus sollte das Programm im Verbose Modus laufen
+     *
      * @param line Der auszugebende String
      */
     static void println(String line) {
