@@ -2,13 +2,11 @@ package ohm.roth;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Serializable;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,7 +33,9 @@ public class NavGraph implements Serializable {
         return name;
     }
 
-    public String getFileName() { return name+".DAT"; }
+    public String getFileName() {
+        return name + ".DAT";
+    }
 
     //geoList
     public void addGeo(String id, Geometry geo) {
@@ -51,7 +51,9 @@ public class NavGraph implements Serializable {
         return geoList;
     }
 
-    public int getGeometryCount() { return geoList.size(); }
+    public int getGeometryCount() {
+        return geoList.size();
+    }
 
     // nodelist
     public void addNode(String id, Position pos, String geoId, int geoPos) {
@@ -72,7 +74,9 @@ public class NavGraph implements Serializable {
         return nodeList;
     }
 
-    public int getNodeCount() { return nodeList.size(); }
+    public int getNodeCount() {
+        return nodeList.size();
+    }
 
     // edgelist
     public void addEdge(Edge e) {
@@ -83,7 +87,9 @@ public class NavGraph implements Serializable {
         return edgeList;
     }
 
-    public int getEdgeCount() { return edgeList.size(); }
+    public int getEdgeCount() {
+        return edgeList.size();
+    }
 
 
     public void initGraph() {
@@ -135,7 +141,6 @@ public class NavGraph implements Serializable {
     public Node findClosestGeo(Position p) {
         double dis = Double.MAX_VALUE;
         boolean node = false;
-
         Node bNode = null;
         Edge bEdge = null;
         String bGeo = null;
@@ -145,64 +150,52 @@ public class NavGraph implements Serializable {
         for (Edge edge : this.edgeList.values()) {
             Node nodeTo = this.nodeList.get(edge.getTo());
             Node nodeFrom = this.nodeList.get(edge.getFrom());
-            if ((distance.calcDist(p,nodeFrom.getPosition()) + edge.getCost()) > distance.unitConvert(1000) || (distance.calcDist(p,nodeTo.getPosition()) + edge.getCost()) > distance.unitConvert(1000))
+            if ((distance.calcDist(p, nodeFrom.getPosition()) + edge.getCost()) > distance.unitConvert(1000) || (distance.calcDist(p, nodeTo.getPosition()) + edge.getCost()) > distance.unitConvert(1000))
                 continue;
-            boolean sep = false;
-            List<Node> testNodes = new ArrayList<Node>();
-            List<Node> tmp = new ArrayList<Node>();
-            testNodes.add(this.getNode(edge.getFrom()));
-            testNodes.add(this.getNode(edge.getTo()));
-
-            for (int i = 0; i< 1; i++) {
-                for (Node test : testNodes) {
-                    if (test.neighbors.size() == 1) {
-                        sep = true;
-                        continue;
-                    }
-                }
-                if (sep) break;
-                tmp.clear();
-                tmp.addAll(testNodes);
-                testNodes.clear();
-                for (Node n : tmp) {
-                    for (Edge e : n.getNeighbors()) {
-                        testNodes.add(this.getNode(e.getTo()));
-                    }
-                }
-            }
-            if (sep) continue;
-            
-
-            if (nodeTo.getPosition().equals(p))
-                return nodeTo;
-            if (nodeFrom.getPosition().equals(p))
-                return nodeFrom;
-            
-
+            Coordinate pts;
             for (int i = 0; i < edge.getEdgeGeo().getNumPoints() - 1; i++) {
                 Coordinate[] coords = new Coordinate[2];
                 LineString testLine;
                 coords[0] = edge.getEdgeGeo().getPointN(i).getCoordinate();
                 coords[1] = edge.getEdgeGeo().getPointN(i + 1).getCoordinate();
-                testLine = fac.createLineString(coords);
-                Coordinate[] pts = DistanceOp.closestPoints(p.getPoint(), testLine);
-                if (distance.calcDist(pts[0], pts[1]) >= dis) continue;
+                LineSegment test = new LineSegment(coords[0], coords[1]);
+                pts = test.closestPoint(p);
+                if (distance.calcDist(new Position(pts.x, pts.y), p) < dis) {
 
-                if (coords[0].equals(pts[1])) {
-                    if (distance.calcDist(edge.getEdgeGeo().getPointN(i).getCoordinate(), p) < dis) {
-                        bNode = nodeFrom;
-                        dis = distance.calcDist(edge.getEdgeGeo().getPointN(i).getCoordinate(), p);
-                        node = true;
+                    // Test ob Kante im Graph ist
+                    // Teste auf 10 Ebenen
+                    // Bessere Ansatz: Graph in Subgraphen aufteilen
+                    boolean single = true;
+                    List<String> testedNodes = new ArrayList<String>();
+                    List<Node> testNodes = new ArrayList<Node>();
+                    List<Node> tmp = new ArrayList<Node>();
+                    testNodes.add(this.getNode(edge.getFrom()));
+                    testNodes.add(this.getNode(edge.getTo()));
+                    for (int ii = 0; ii < 10; ii++) {
+                        single = true;
+                        for (Node testNode : testNodes) {
+                            testedNodes.add(testNode.getId());
+                            if (testNode.neighbors.size() > 1) {
+                                single = false;
+                                continue;
+                            }
+                        }
+                        if (single) break;
+                        tmp.clear();
+                        tmp.addAll(testNodes);
+                        testNodes.clear();
+                        for (Node n : tmp) {
+                            for (Edge e : n.getNeighbors()) {
+                                if (!testedNodes.contains(e.getTo()))
+                                    testNodes.add(this.getNode(e.getTo()));
+                                if (!testedNodes.contains(e.getFrom()))
+                                    testNodes.add(this.getNode(e.getFrom()));
+                            }
+                        }
                     }
-                } else if (coords[1].equals(pts[1])) {
-                    if (distance.calcDist(edge.getEdgeGeo().getPointN(i + 1).getCoordinate(), p) < dis) {
-                        bNode = nodeTo;
-                        dis = distance.calcDist(edge.getEdgeGeo().getPointN(i + 1).getCoordinate(), p);
-                        node = true;
-                    }
-                } else {
-                    Node tmpNode = new Node("INSERTD" + UUID.randomUUID().toString(), new Position(pts[1].x, pts[1].y));
-                    if (distance.calcDist(tmpNode, p) < dis) {
+
+                    if (!single) {
+                        Node tmpNode = new Node("INSERTD" + UUID.randomUUID().toString(), new Position(pts.x, pts.y));
                         lastPos = i;
                         bNode = tmpNode;
                         bEdge = edge;
@@ -211,11 +204,12 @@ public class NavGraph implements Serializable {
                         node = false;
                     }
                 }
+
+
             }
         }
         if (!node) {
             // Node einfügen
-            //Linestring 1
             LineString line1, line2;
             Coordinate[] coordinates = new Coordinate[lastPos + 2];
             int ii = 0;
@@ -235,7 +229,7 @@ public class NavGraph implements Serializable {
 
             }
             line2 = fac.createLineString(coordinates);
-            
+
             Node t1 = this.getNode(bEdge.getTo());
             Node t2 = this.getNode(bEdge.getFrom());
 
@@ -358,10 +352,14 @@ public class NavGraph implements Serializable {
         }
     }
 
-    public int getEndPoints() { return endPoints; }
+    public int getEndPoints() {
+        return endPoints;
+    }
 
     // Generation Date
-    public Date getGenDate() { return genDate; }
+    public Date getGenDate() {
+        return genDate;
+    }
 
     public String getGenDateString() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");

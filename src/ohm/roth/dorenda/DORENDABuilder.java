@@ -4,6 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import ohm.roth.*;
 
+import java.awt.*;
 import java.util.List;
 
 import static java.awt.Color.*;
@@ -30,7 +31,7 @@ public class DORENDABuilder {
             lineToEnd.addPosition(seg.getEndWaypoint());
             lineToEnd.addPosition(seg.getLastNode().getNode().getPosition());
 
-            dorendaLine line = new dorendaLine(BLUE, dorendaLine.Markers.No_Marker);
+            dorendaLine line = new dorendaLine(Color.RED, dorendaLine.Markers.No_Marker);
             line.addLineString(seg.getSegmentLine(false));
 
             doc.addLine(lineToStart);

@@ -1,3 +1,4 @@
+import com.sun.org.apache.xalan.internal.xslt.*;
 import ohm.roth.*;
 import ohm.roth.astar.AStarAlgorithm;
 import ohm.roth.astar.AStarResult;
@@ -6,6 +7,7 @@ import ohm.roth.gpx.GPXBuilder;
 import ohm.roth.tsp.TSP;
 
 import java.io.*;
+import java.lang.Process;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +63,7 @@ public class Application {
             Application.lsiWeights = new HashMap<String, Double>();
             lsiWeights = CSV.readLSIWeight(Application.lsiWeightsFilename);
         } catch (Exception e) {
-            System.err.println("Error reading " + Application.lsiWeightsFilename);
+            System.out.println("Error reading " + Application.lsiWeightsFilename);
         }
 
         boolean quit = false;
@@ -74,6 +76,8 @@ public class Application {
             System.out.println("[1] Build Path");
             System.out.println("[2] Benchmarks");
             System.out.println("[3] Graph");
+            System.out.println("[4] Test Aufgabe Bamberg");
+            System.out.println("[5] Test Aufgabe Wuerzburg");
             System.out.println("[0] exit");
             System.out.print("Select: ");
             int menu = scan.nextInt();
@@ -86,6 +90,13 @@ public class Application {
                     break;
                 case 3:
                     graphMenu();
+                    break;
+                case 4:
+                    try {
+                        testAufgaben("01.foo");
+                    } catch (Exception e) {
+                        System.out.println("Error running Script :(");
+                    }
                     break;
                 case 0:
                     quit = true;
@@ -341,7 +352,7 @@ public class Application {
                     double wEnd = scan.nextDouble();
                     System.out.print("Steps: ");
                     double wStep = scan.nextDouble();
-                    compareAStarW(graph, places, wStart, wEnd, wStep);
+                    compareAStarW(places, wStart, wEnd, wStep);
                     break;
                 case 2:
                     System.out.print("Start Limit: ");
@@ -350,7 +361,7 @@ public class Application {
                     int lEnd = scan.nextInt();
                     System.out.print("Steps: ");
                     int lStep = scan.nextInt();
-                    compareAStarLimitedOpen(graph, places, lStart, lEnd, lStep);
+                    compareAStarLimitedOpen(places, lStart, lEnd, lStep);
                     break;
                 case 3:
                     System.out.print("Number of Points: ");
@@ -378,7 +389,15 @@ public class Application {
         while (!quit);
     }
 
-    static void compareAStarW(NavGraph graph, List<Position> places, double start, double end, double step) {
+    /**
+     * Vergleicht A-Stern mit einem bereich von OverDo Faktoren
+     *
+     * @param places Testpunke für den Benchmark
+     * @param start  Statr OverDo Faktor
+     * @param end    End OverDo Faktor
+     * @param step   Inkrementschritte
+     */
+    static void compareAStarW(List<Position> places, double start, double end, double step) {
         if (end < start) {
             double tmp = end;
             end = start;
@@ -428,7 +447,15 @@ public class Application {
         }
     }
 
-    static void compareAStarLimitedOpen(NavGraph graph, List<Position> places, int start, int end, int step) {
+    /**
+     * Vergleicht A-Stern mit einem bereich von Limits für die Open Liste
+     *
+     * @param places Testpunke für den Benchmark
+     * @param start  Statr Limit
+     * @param end    End Limit
+     * @param step   Inkrementschritte
+     */
+    static void compareAStarLimitedOpen(List<Position> places, int start, int end, int step) {
         if (end < start) {
             int tmp = end;
             end = start;
@@ -477,6 +504,11 @@ public class Application {
         }
     }
 
+    /**
+     * Vergleicht TSP Methoden
+     *
+     * @param points anzahl der Punkte
+     */
     static void compareTSP(int points) {
         List<Waypoint> waypoints;
         List<Waypoint> orderdWaypoints;
@@ -512,6 +544,14 @@ public class Application {
         System.out.println();
     }
 
+    /**
+     * Vergleicht den Genetischen Algo. fuer den TSP mit einem Intervall von Generationen
+     *
+     * @param points Testpunke für den Benchmark
+     * @param start  Start Generationen Anzahl
+     * @param end    End Generationen Anzahl
+     * @param step   Inkrementschritte
+     */
     static void compareGeneticGens(int points, int start, int end, int step) {
         List<Waypoint> waypoints;
         List<Waypoint> orderdWaypoints;
@@ -548,7 +588,9 @@ public class Application {
         System.out.println();
     }
 
-    // Graph Options
+    /**
+     * Graph Menue
+     */
     static void graphMenu() {
         boolean quit = false;
         do {
@@ -601,6 +643,9 @@ public class Application {
         while (!quit);
     }
 
+    /**
+     * Ausgabe der Graphinformationen
+     */
     static void graphInformation() {
         System.out.println("==================================================");
         System.out.println("Graph Information");
@@ -620,7 +665,11 @@ public class Application {
         }
     }
 
-    // Graph loader
+    /**
+     * Laedt den Graph aus einer Datei
+     *
+     * @param filename Dateiname
+     */
     static void loadGraph_File(String filename) {
         // Graph aus Datei laden
         double time_graph = System.currentTimeMillis();
@@ -653,6 +702,12 @@ public class Application {
         }
     }
 
+    /**
+     * Laedt den Graph von der Datenbank
+     *
+     * @param bBoxFile Dateiname der Datei in der die Bereichskoordinaten
+     * @param name     Name des Graphen
+     */
     static void loadGraph_Database(String bBoxFile, String name) {
         Position[] boundingBox;
         try {
@@ -663,6 +718,12 @@ public class Application {
         }
     }
 
+    /**
+     * Laedt den Graph von der Datenbank
+     *
+     * @param bBox Array der Bereichskoordinaten
+     * @param name Graphname
+     */
     static void loadGraph_Database(Position[] bBox, String name) {
         // Graph aus Datei laden
         double time_graph = System.currentTimeMillis();
@@ -706,5 +767,54 @@ public class Application {
         if (verbose) System.out.println(line);
     }
 
+    /**
+     * Script für die Testaufgaben
+     *
+     * @param filename Dateiname für das Script
+     */
+    static void testAufgaben(String filename) throws Exception {
+        File scriptFile = new File(filename);
+        if (!scriptFile.exists()) {
+            System.out.println("Scriptfile not found");
+            return;
+        }
+        FileInputStream fis = new FileInputStream(scriptFile);
+        BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+        String strLine, tokens[];
+        while ((strLine = in.readLine()) != null) {
+            tokens = strLine.split(" ", 2);
+            if (tokens[0].toUpperCase().equals("PRINT")) {
+                System.out.println(tokens[1]);
+            } else if (tokens[0].toUpperCase().equals("LOADFILE")) {
+                File file = new File(tokens[1] + ".DAT");
+                if (file.exists()) {
+                    Application.loadGraph_File(tokens[1]);
+                }
+            } else if (tokens[0].toUpperCase().equals("PATH")) {
+                String pathPara[] = tokens[1].split(" ");
+                boolean loop = false;
+                boolean reduce = false;
+                boolean lsi = false;
+                if (pathPara[3].equals("1")) {
+                    loop = true;
+                }
+                if (pathPara[4].equals("1")) {
+                    reduce = true;
+                }
+                if (pathPara[5].equals("1")) {
+                    lsi = true;
+                }
+                findPath(pathPara[0], pathPara[1], Double.parseDouble(pathPara[2]), loop, reduce, lsi);
+            } else if (tokens[0].equals("//")) {
+
+            } else if (tokens[0].toUpperCase().equals("DORENDA")) {
+                String command = "java -jar dorendaclient.jar -h geo.informatik.fh-nuernberg.de -p 8088 -c pp.dorenda.client.UniversalPainter -a " + tokens[1] + ";c";
+                Runtime.getRuntime().exec(command);
+            } else {
+                System.out.println("Unknown Command: " + tokens[0]);
+            }
+
+        }
+    }
 
 }
