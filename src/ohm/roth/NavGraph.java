@@ -5,14 +5,21 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
+import ohm.roth.dorenda.DORENDABuilder;
+import ohm.roth.dorenda.dorendaDocument;
+import ohm.roth.dorenda.dorendaLine;
+import ohm.roth.dorenda.dorendaPoints;
 
+import java.awt.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
-
-@SuppressWarnings({"ConstantConditions"})
+/**
+ * Beschreibung eines Gerichten Graphen
+ */
 public class NavGraph implements Serializable {
     private String name;
     private Date genDate;
@@ -21,6 +28,10 @@ public class NavGraph implements Serializable {
     private HashMap<String, Geometry> geoList;
     private HashMap<String, Edge> edgeList;
 
+    /**
+     * Konstruktor
+     * @param name Name des Graphen
+     */
     public NavGraph(String name) {
         nodeList = new HashMap<String, Node>();
         geoList = new HashMap<String, Geometry>();
@@ -29,33 +40,66 @@ public class NavGraph implements Serializable {
         genDate = new Date();
     }
 
+    /**
+     * Der Name des Graphen
+     * @return Name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Der Standart Dateiname des Graphen
+     * @return Dateiname
+     */
     public String getFileName() {
         return name + ".DAT";
     }
 
-    //geoList
+    /**
+     * Fuegt dem Graphen ein neues GeometrieObject hinzu
+     * @param id ID des Geometry Objekts
+     * @param geo Das Geometry Objekt
+     */
     public void addGeo(String id, Geometry geo) {
         if (!this.geoList.containsKey(id))
             this.geoList.put(id, geo);
     }
 
+    /**
+     * Gibt das Geometry Object einer bestimmten ID zurueck
+     * @param id Die Id
+     * @return Das Geometry Object
+     */
     public Geometry getGeo(String id) {
         return this.geoList.get(id);
     }
 
+    /**
+     * Gibt die Hashmap aller Geometry Objecte zurueck
+     * key: Geometry ID
+     * value: Das Geometry Object
+     * @return Hashmap
+     */
     public HashMap<String, Geometry> getGeoList() {
         return geoList;
     }
 
+    /**
+     * Anzahl aller Geometry Objects im Graphen
+     * @return Die Anzahl
+     */
     public int getGeometryCount() {
         return geoList.size();
     }
 
-    // nodelist
+    /**
+     * Fuegt dem Graphen einen neue Knotenpunkt (Node) hinzu
+     * @param id Die ID des Knotenpunkt
+     * @param pos Die Position des Knotenpunkt
+     * @param geoId Die Id der Geometry auf der sich der Knotenpunkt befindet
+     * @param geoPos Die Position der Geometry auf der sich der Kontenpunkt befindet
+     */
     public void addNode(String id, Position pos, String geoId, int geoPos) {
         if (!this.nodeList.containsKey(id)) {
             this.nodeList.put(id, new Node(id, pos));
@@ -66,32 +110,65 @@ public class NavGraph implements Serializable {
             }
     }
 
+    /**
+     * Gibt den Knotenpunkt mit einer bestimmten Id zurueck
+     * @param id Die ID des Knotenpunkt
+     * @return Der Knotenpunkt
+     */
     public Node getNode(String id) {
         return this.nodeList.get(id);
     }
 
+    /**
+     * Gibt eine HashMap mit allen Knotenpunkt zurueck
+     * key: ID des Knotenpunkt
+     * value: Der Knotenpunkt
+     * @return HashMap
+     */
     public HashMap<String, Node> getNodeList() {
         return nodeList;
     }
 
+    /**
+     * Gibt die Anzahl aller Knotenpunkte im Graphen zurueck
+     * @return Die Anzahl
+     */
     public int getNodeCount() {
         return nodeList.size();
     }
 
-    // edgelist
+    /**
+     * Fuegt dem Graphen eine neue Kante hinzu
+     * @param e Die Kante
+     */
     public void addEdge(Edge e) {
         this.edgeList.put(e.getId(), e);
     }
 
+    /**
+     * Gibt eine HashMap mit allen Kanten zurueck
+     * key: Kanten Id
+     * value: Das Kante Object
+     * @return HashMap
+     */
     public HashMap<String, Edge> getEdgeList() {
         return edgeList;
     }
 
+    /**
+     * Gibt die Anzahl aller Kanten im Graphen zurueck
+     * @return Die Anzahl
+     */
     public int getEdgeCount() {
         return edgeList.size();
     }
 
-
+    /**
+     * Initialisiert den Graphen
+     * Fuer allen Kanten werden:
+     * 1.) Die exakte Kosten (Laenge) der Kanten Geometry berechnet
+     * 2.) Aus der Geometry die exate Geometry der Kante gebildet und an diese angehaengt
+     */
     public void initGraph() {
         for (Edge edge : this.edgeList.values()) {
             edge.setGeo(this.getGeo(edge.getGeo_id()));
@@ -117,7 +194,12 @@ public class NavGraph implements Serializable {
         }
     }
 
-
+    /**
+     * Findet den naeheste im Graphen enthalten Knotenpunkt zu einer gegebenen Position
+     * @param p Die Position
+     * @param useGeo Gibt an ob Geometrie Informationen beruecksichtigt werden sollen
+     * @return Der gefundene Knotenpunkt
+     */
     public Node findClosest(Position p, boolean useGeo) {
         if (useGeo) {
             return findClosestGeo(p);
@@ -126,6 +208,11 @@ public class NavGraph implements Serializable {
         }
     }
 
+    /**
+     * Findet den naehsten im Graphen enthaltenen Knotenpunkt anhand einer Position auf Basis der Topologischen Inforamtionen
+     * @param p Die Position
+     * @return Der gefundene Knotenpunkt
+     */
     public Node findClosestTopo(Position p) {
         double dis = 999999999;
         Node closest = null;
@@ -138,6 +225,11 @@ public class NavGraph implements Serializable {
         return closest;
     }
 
+    /**
+     * Findet den naehsten im Graphen enthaltenen Knotenpunkt anhand einer Position auf Basis der Geographischen Inforamtionen
+     * @param p Die Position
+     * @return Der gefundene Knotenpunkt
+     */
     public Node findClosestGeo(Position p) {
         double dis = Double.MAX_VALUE;
         boolean node = false;
@@ -150,10 +242,10 @@ public class NavGraph implements Serializable {
         for (Edge edge : this.edgeList.values()) {
             Node nodeTo = this.nodeList.get(edge.getTo());
             Node nodeFrom = this.nodeList.get(edge.getFrom());
-            if ((distance.calcDist(p, nodeFrom.getPosition()) + edge.getCost()) > distance.unitConvert(1000) || (distance.calcDist(p, nodeTo.getPosition()) + edge.getCost()) > distance.unitConvert(1000))
+            if ((distance.calcDist(p, nodeFrom.getPosition()) + edge.getCost()) > distance.unitConvert(15000) || (distance.calcDist(p, nodeTo.getPosition()) + edge.getCost()) > distance.unitConvert(15000))
                 continue;
             Coordinate pts;
-            for (int i = 0; i < edge.getEdgeGeo().getNumPoints() - 1; i++) {
+            for (int i = 0; i < edge.getEdgeGeo().getNumPoints()-1; i++) {
                 Coordinate[] coords = new Coordinate[2];
                 LineString testLine;
                 coords[0] = edge.getEdgeGeo().getPointN(i).getCoordinate();
@@ -200,7 +292,7 @@ public class NavGraph implements Serializable {
                         bNode = tmpNode;
                         bEdge = edge;
                         bGeo = edge.getGeo_id();
-                        dis = distance.calcDist(tmpNode, p);
+                        dis = distance.calcDist(new Position(pts.x, pts.y), p);
                         node = false;
                     }
                 }
@@ -209,7 +301,7 @@ public class NavGraph implements Serializable {
             }
         }
         if (!node) {
-            // Node einfügen
+            // Node einfuegen
             LineString line1, line2;
             Coordinate[] coordinates = new Coordinate[lastPos + 2];
             int ii = 0;
@@ -229,10 +321,8 @@ public class NavGraph implements Serializable {
 
             }
             line2 = fac.createLineString(coordinates);
-
             Node t1 = this.getNode(bEdge.getTo());
             Node t2 = this.getNode(bEdge.getFrom());
-
             addNode(bNode.getId(), bNode.getPosition(), bGeo, 0);
             addConnection(bNode.getId(), bEdge.getFrom(), distance.distanceLinestring(line1), bGeo, bEdge.getFromPos(), bEdge.getToPos());
             addConnection(bEdge.getFrom(), bNode.getId(), distance.distanceLinestring(line1), bGeo, bEdge.getFromPos(), bEdge.getToPos());
@@ -246,35 +336,36 @@ public class NavGraph implements Serializable {
             this.getEdgeList().get(bEdge.getFrom() + "___" + bNode.getId()).setGeo(this.getGeo(bGeo));
             this.getEdgeList().get(bNode.getId() + "___" + bEdge.getTo()).setGeo(this.getGeo(bGeo));
             this.getEdgeList().get(bEdge.getTo() + "___" + bNode.getId()).setGeo(this.getGeo(bGeo));
+
+           /* dorendaDocument doc = new dorendaDocument();
+            doc.addLine(new dorendaLine(Color.blue, line1, dorendaLine.Markers.No_Marker));
+            doc.addLine(new dorendaLine(Color.blue, line2, dorendaLine.Markers.No_Marker));
+            doc.addPoints(new dorendaPoints(Color.red, "closestPoint", bNode.getPosition()));
+            doc.addPoints(new dorendaPoints(Color.red, "POI", p));
+            try {
+                FileOutputStream fos;
+                List<String> fooo = new ArrayList<String>();
+                fos = new FileOutputStream(p.getLon() + ".txt");
+                OutputStreamWriter out2 = new OutputStreamWriter(fos);
+                out2.write(doc.toString());
+                out2.close();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }*/
         }
         return getNode(bNode.getId());
     }
 
-
-    public void dumpGraph(String filename) throws IOException {
-        FileOutputStream fos;
-        List<String> fooo = new ArrayList<String>();
-
-        fos = new FileOutputStream(filename);
-
-        OutputStreamWriter out2 = new OutputStreamWriter(fos);
-
-        for (Edge e : this.getEdgeList().values()) {
-            if ((!fooo.contains(this.getNode(e.getFrom()).getId() + "___" + this.getNode(e.getTo()).getId())) && (!fooo.contains(this.getNode(e.getTo()).getId() + "___" + this.getNode(e.getFrom()).getId()))) {
-                out2.write("LINE mode=1 col=0,0,255,75\n");
-                out2.write(this.getNode(e.getFrom()).getPosition().getLat() + ","
-                        + this.getNode(e.getFrom()).getPosition().getLon() + "\n");
-                out2.write(this.getNode(e.getTo()).getPosition().getLat() + ","
-                        + this.getNode(e.getTo()).getPosition().getLon() + "\n");
-
-                fooo.add((this.getNode(e.getTo()).getId() + "___" + this.getNode(e.getFrom()).getId()));
-            }
-        }
-        out2.close();
-        fos.close();
-    }
-
-
+    /**
+     * Verbindet 2 Knotenpunkt im Graphen
+     * @param firstId ID des 1. Knotenpunkt
+     * @param secondId ID des 2. Knotenpunkt
+     * @param c Die Kosten (Weglaenge) der Verbindung
+     * @param gao Die Geometry ID auf der sich die Verbindung (Kante) befindet
+     * @param firstPos Die Position des ersten Knotenpunkt auf der Geometry
+     * @param secondPos Die Position des zweiten Knotenpunkt auf der Geometry
+     */
     public void addConnection(String firstId, String secondId, double c, String gao, int firstPos, int secondPos) {
         Node node1 = this.getNode(firstId);
         Node node2 = this.getNode(secondId);
@@ -288,7 +379,9 @@ public class NavGraph implements Serializable {
         }
     }
 
-    // EndPoints
+    /**
+     * Fuegt alle im Graphen fehlende Endpunkte hinzu
+     */
     public void addEndPoints() {
         System.out.println("Adding Geo End Points");
         for (ohm.roth.Geometry geo : this.geoList.values()) {
@@ -352,15 +445,26 @@ public class NavGraph implements Serializable {
         }
     }
 
+    /**
+     * Gibt die Anzahl aller eingefuegten Endpunkte zurueck
+     * @return Die Anzahl
+     */
     public int getEndPoints() {
         return endPoints;
     }
 
-    // Generation Date
+    /**
+     * Gibt das Datum zurueck zu dem der Graph erstellt wurde
+     * @return Das Datum
+     */
     public Date getGenDate() {
         return genDate;
     }
 
+    /**
+     * Gibt das Datum als String zurueck zu dem der Graph erstellt wurde
+     * @return Datum als String
+     */
     public String getGenDateString() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         return (dateFormat.format(genDate));

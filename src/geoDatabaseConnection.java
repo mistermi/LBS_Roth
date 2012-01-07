@@ -9,6 +9,9 @@ import ohm.roth.distance;
 import java.sql.*;
 import java.util.UUID;
 
+/**
+ * Klasse fuer die Verbindung zu Datenbank
+ */
 public class geoDatabaseConnection {
     private String dbhost = "geo.informatik.fh-nuernberg.de";
     private int dbport = 5432;
@@ -18,6 +21,14 @@ public class geoDatabaseConnection {
 
     private Connection connection = null;
 
+    /**
+     * Konstruktor
+     * @param dbhost Datenbank Host
+     * @param dbport Datenbank Port
+     * @param dbuser Datenbank Benutzername
+     * @param dbpasswd Datenbank BenutzerPasswort
+     * @param dbname Datenbank Name
+     */
     public geoDatabaseConnection(String dbhost, int dbport, String dbuser, String dbpasswd, String dbname) {
         super();
         this.dbhost = dbhost;
@@ -27,6 +38,9 @@ public class geoDatabaseConnection {
         this.dbname = dbname;
     }
 
+    /**
+     * Stellt die Verbindung mit der Datenbank her
+     */
     public void connect() {
         try {
             if (this.connection == null || this.connection.isClosed()) {
@@ -41,6 +55,13 @@ public class geoDatabaseConnection {
         }
     }
 
+    /**
+     * Laedt die Daten fuer einen Gegeben bereich aus der Datenbank und baut einen Graphen
+     * @param boundingCoords Array mit den Begrenzenden Coordinaten fuer den Graphen
+     * @param name Der Name des zu bauenden Graphen
+     * @return Der Graph als NavGraph
+     * @throws Exception Datenbank Fehler
+     */
     public NavGraph getGraph(Position[] boundingCoords, String name) throws Exception {
         // Runtime Vars
         ResultSet resultSet;
@@ -91,7 +112,7 @@ public class geoDatabaseConnection {
             // Geomerty Objects
             String gao_id = resultSet.getString("gaoid");
             if (!graph.getGeoList().containsKey(gao_id)) {
-                // Geometry einfügen
+                // Geometry einfuegen
                 String gao_name = resultSet.getString("gaoname");
                 String gao_lsi = resultSet.getString("gaolsi");
                 com.vividsolutions.jts.geom.Geometry gao_geo;
@@ -153,7 +174,7 @@ public class geoDatabaseConnection {
             graph.addConnection(toId, fromId, meter, gao_id, toPos, fromPos);
         }
 
-        // Geometrische Endpunkte einfügen
+        // Geometrische Endpunkte einfuegen
         graph.addEndPoints();
         return graph;
     }

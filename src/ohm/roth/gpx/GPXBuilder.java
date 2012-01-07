@@ -22,26 +22,24 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Erstellt GPX Dokumente aus verschiedenen klassen
+ */
 public class GPXBuilder {
+
+    /**
+     * Erstellt ein GPX Dokument aus einem path Objekt
+     * @param path Der zu verwendende Pfad
+     * @param name Der Name des Pfades
+     * @return Das GPX Dokument als Text
+     */
     public static String build(Path path, String name) {
         try {
-            /////////////////////////////
-            //Creating an empty XML Document
-
-            //We need a Document
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             Document doc = docBuilder.newDocument();
             doc.setXmlStandalone(true);
             doc.setXmlVersion("1.0");
-
-            ////////////////////////
-            //Creating the XML tree
-            FileOutputStream fos;
-            fos = new FileOutputStream("tmppath.txt");
-            OutputStreamWriter out2 = new OutputStreamWriter(fos);
-            out2.write("LINE mode=1 col=0,0,255,75\n");
-            //create the root element and add it to the document
             Element root = doc.createElement("gpx");
             root.setAttribute("version", "1.1");
             root.setAttribute("creator", "test2");
@@ -50,7 +48,6 @@ public class GPXBuilder {
             root.setAttribute("xsi:schemaLocation", "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd");
             doc.appendChild(root);
 
-            //create child element, add an attribute, and add to root
             Element meta = doc.createElement("metadata");
             root.appendChild(meta);
 
@@ -80,7 +77,6 @@ public class GPXBuilder {
                 while (currNode != null) {
                     if (currNode.getNextEdge() != null) {
                         for (Coordinate coord : currNode.getNextEdge().getEdgeGeo().getCoordinates()) {
-                            out2.write(coord.x + "," + coord.y + "\n");
                             trackPoint = doc.createElement("trkpt");
                             trackname = doc.createElement("name");
                             trackname.appendChild(doc.createTextNode(UUID.randomUUID().toString()));
@@ -89,9 +85,7 @@ public class GPXBuilder {
                             trackPoint.setAttribute("lon", String.valueOf(-coord.x));
                             trackSegment.appendChild(trackPoint);
                         }
-                        out2.flush();
                     }
-
                     currNode = currNode.getNextNode();
                 }
                 trackPoint = doc.createElement("trkpt");
@@ -102,25 +96,17 @@ public class GPXBuilder {
                 trackPoint.setAttribute("lon", String.valueOf(-segment.getEndWaypoint().x));
                 trackSegment.appendChild(trackPoint);
             }
-            out2.close();
-            fos.close();
 
-            /////////////////
-            //Output the XML
-
-            //set up a transformer
             TransformerFactory transfac = TransformerFactory.newInstance();
             Transformer trans = transfac.newTransformer();
             trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
 
-            //create string from xml tree
             StringWriter sw = new StringWriter();
             StreamResult result = new StreamResult(sw);
             DOMSource source = new DOMSource(doc);
             trans.transform(source, result);
 
-            //print xml
             return sw.toString();
 
         } catch (Exception e) {
@@ -129,22 +115,20 @@ public class GPXBuilder {
         }
     }
 
+    /**
+     * Erstellt ein Dorenda Dokument aus einer Liste von Wegpukten
+     * @param waypoints Die Liste der Wegpunkte
+     * @param name Der Name des daruas erstellten Pfades
+     * @return Das GPX Dokument als String
+     */
     public static String build(List<Waypoint> waypoints, String name) {
         try {
-            /////////////////////////////
-            //Creating an empty XML Document
-
-            //We need a Document
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             Document doc = docBuilder.newDocument();
             doc.setXmlStandalone(true);
             doc.setXmlVersion("1.0");
 
-            ////////////////////////
-            //Creating the XML tree
-
-            //create the root element and add it to the document
             Element root = doc.createElement("gpx");
             root.setAttribute("version", "1.1");
             root.setAttribute("creator", "test2");
@@ -153,7 +137,6 @@ public class GPXBuilder {
             root.setAttribute("xsi:schemaLocation", "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd");
             doc.appendChild(root);
 
-            //create child element, add an attribute, and add to root
             Element meta = doc.createElement("metadata");
             root.appendChild(meta);
 
@@ -193,22 +176,16 @@ public class GPXBuilder {
             trackPoint.setAttribute("lon", Double.toString(-waypoints.get(0).x));
             trackSegment.appendChild(trackPoint);
 
-            /////////////////
-            //Output the XML
-
-            //set up a transformer
             TransformerFactory transfac = TransformerFactory.newInstance();
             Transformer trans = transfac.newTransformer();
             trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
 
-            //create string from xml tree
             StringWriter sw = new StringWriter();
             StreamResult result = new StreamResult(sw);
             DOMSource source = new DOMSource(doc);
             trans.transform(source, result);
 
-            //print xml
             return sw.toString();
 
         } catch (Exception e) {
@@ -217,22 +194,20 @@ public class GPXBuilder {
         }
     }
 
+    /**
+     * Erstellt ein GPX Dokument aus einem LineString
+     * @param line Der Line String
+     * @param name Der Name des daraus gebildeten Pfades
+     * @return Das GPX Dokument als String
+     */
     public static String build(LineString line, String name) {
         try {
-            /////////////////////////////
-            //Creating an empty XML Document
-
-            //We need a Document
             DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
             Document doc = docBuilder.newDocument();
             doc.setXmlStandalone(true);
             doc.setXmlVersion("1.0");
 
-            ////////////////////////
-            //Creating the XML tree
-
-            //create the root element and add it to the document
             Element root = doc.createElement("gpx");
             root.setAttribute("version", "1.1");
             root.setAttribute("creator", "test2");
@@ -241,7 +216,6 @@ public class GPXBuilder {
             root.setAttribute("xsi:schemaLocation", "http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd");
             doc.appendChild(root);
 
-            //create child element, add an attribute, and add to root
             Element meta = doc.createElement("metadata");
             root.appendChild(meta);
 
@@ -271,23 +245,16 @@ public class GPXBuilder {
                 trackSegment.appendChild(trackPoint);
 
             }
-
-            /////////////////
-            //Output the XML
-
-            //set up a transformer
             TransformerFactory transfac = TransformerFactory.newInstance();
             Transformer trans = transfac.newTransformer();
             trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             trans.setOutputProperty(OutputKeys.INDENT, "yes");
 
-            //create string from xml tree
             StringWriter sw = new StringWriter();
             StreamResult result = new StreamResult(sw);
             DOMSource source = new DOMSource(doc);
             trans.transform(source, result);
 
-            //print xml
             return sw.toString();
 
         } catch (Exception e) {

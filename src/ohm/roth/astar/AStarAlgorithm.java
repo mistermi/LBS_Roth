@@ -7,68 +7,68 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Klasse für das Finden des kürzesten Weges auf einem Graph via A-Stern
+ * Klasse fuer das Finden des kuerzesten Weges auf einem Graph via A-Stern
  */
 public class AStarAlgorithm {
     public static double defaultW = 1;
     public static double visitedW = 200;
 
     /**
-     * Findet den kürzesten Weg zwischen "source" und "target" auf dem gegeben Graphen
-     * @param graph
-     * @param source
-     * @param target
-     * @param name
-     * @return
-     * @throws Exception
+     * Findet den kuerzesten Weg zwischen "source" und "target" auf dem gegeben Graphen
+     * @param graph Der zu verwendete Graph
+     * @param source Die Start Node
+     * @param target Die Ziel Node
+     * @param name Der Name der zu findenten Strecke
+     * @return Resultat als AStarResult
+     * @throws Exception Vor allem wenn kein Weg gefunden werden kann
      */
     public static AStarResult search(NavGraph graph, Node source, Node target, String name) throws Exception {
         return search(graph, source, target, name, defaultW, 0, null, false, null, false);
     }
 
     /**
-     * Findet den kürzesten Weg zwischen "source" und "target" auf dem gegeben Graphen
-     * @param graph
-     * @param source
-     * @param target
-     * @param name
-     * @param w
-     * @return
-     * @throws Exception
+     * Findet den kuerzesten Weg zwischen "source" und "target" auf dem gegeben Graphen
+     * @param graph Der zu verwendete Graph
+     * @param source Die Start Node
+     * @param target Die Ziel Node
+     * @param name Der Name der zu findenten Strecke
+     * @param w OverDo Faktor
+     * @return Resultat als AStarResult
+     * @throws Exception Vor allem wenn kein Weg gefunden werden kann
      */
     public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w) throws Exception {
         return search(graph, source, target, name, w, 0, null, false, null, false);
     }
 
     /**
-     *
-     * @param graph
-     * @param source
-     * @param target
-     * @param name
-     * @param w
-     * @param limit
-     * @return
-     * @throws Exception
+     * Findet den kuerzesten Weg zwischen "source" und "target" auf dem gegeben Graphen
+     * @param graph Der zu verwendete Graph
+     * @param source Die Start Node
+     * @param target Die Ziel Node
+     * @param name Der Name der zu findenten Strecke
+     * @param w OverDo Faktor
+     * @param limit Limit fuer die Open Liste
+     * @return Resultat als AStarResult
+     * @throws Exception Vor allem wenn kein Weg gefunden werden kann
      */
     public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w, int limit) throws Exception {
         return search(graph, source, target, name, w, limit, null, false, null, false);
     }
 
     /**
-     *
-     * @param graph
-     * @param source
-     * @param target
-     * @param name
-     * @param w
-     * @param openSetLimit
-     * @param lsiWeight
-     * @param useLsiWeight
-     * @param visitedEdges
-     * @param useVisited
-     * @return
-     * @throws Exception
+     * Findet den kuerzesten Weg zwischen "source" und "target" auf dem gegeben Graphen
+     * @param graph Der zu verwendete Graph
+     * @param source Die Start Node
+     * @param target Die Ziel Node
+     * @param name Der Name der zu findenten Strecke
+     * @param w OverDo Faktor
+     * @param openSetLimit  Limit fuer die Open Liste
+     * @param lsiWeight Hashmap die die LSI Gewichtungen Angibt (String, Double)
+     * @param useLsiWeight Gibt an ob LSI Gewichtungen verwendet werden sollen
+     * @param visitedEdges String Liste in der die Ids der zu vermeidenen Kanten Stehen
+     * @param useVisited Gibt an ob Doppelte Kanten vermieden werden sollen
+     * @return Resultat als AStarResult
+     * @throws Exception Vor allem wenn kein Weg gefunden werden kann
      */
     public static AStarResult search(NavGraph graph, Node source, Node target, String name, double w, int openSetLimit, HashMap<String, Double> lsiWeight, boolean useLsiWeight, List<String> visitedEdges, boolean useVisited) throws Exception {
         int expNodes = 1;
@@ -111,7 +111,6 @@ public class AStarAlgorithm {
                         expandedEdges.add(neighborEdge.getId());
                         n = new AStarNode(neighbor);
                         n.setCameFrom(x);
-                        n.setCostCameFrom(neighborEdge.getCost());
                         n.setCameFromEdge(neighborEdge);
                         n.setG(g);
                         n.setF(f);
@@ -119,7 +118,6 @@ public class AStarAlgorithm {
                     } else if (f < n.getF()) {
                         // Node in open aber "neuer" Weg ist kuerzer
                         n.setCameFrom(x);
-                        n.setCostCameFrom(neighborEdge.getCost());
                         n.setCameFromEdge(neighborEdge);
                         n.setF(f);
                         n.setG(g);
@@ -152,7 +150,6 @@ public class AStarAlgorithm {
                     time_sort,
                     graph.getNodeList().size(),
                     expandedEdges,
-                    expNodes,
                     pathNodes,
                     w,
                     length,

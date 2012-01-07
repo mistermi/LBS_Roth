@@ -1,0 +1,64 @@
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="test2" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata>
+<name>FOO</name>
+</metadata>
+<trk>
+<name/>
+<trkseg>
+<trkpt lat="49.802028" lon="9.936427">
+<name>bb18e618-d30b-45d0-b7e7-008d04a3bcc7</name>
+</trkpt>
+<trkpt lat="49.804734" lon="9.93481">
+<name>fbcf6ef6-4a30-4e8a-a43a-ab7f2c75008e</name>
+</trkpt>
+<trkpt lat="49.798279" lon="9.931132">
+<name>734f0190-8ffc-4a5a-842a-80a8e6e9df36</name>
+</trkpt>
+<trkpt lat="49.795654" lon="9.93776">
+<name>3be0bbe9-fce9-42f1-a838-27da101e3ee3</name>
+</trkpt>
+<trkpt lat="49.794367" lon="9.939171">
+<name>f4e20217-f32e-44e0-80c5-15313be02e28</name>
+</trkpt>
+<trkpt lat="49.793387" lon="9.939443">
+<name>4a157683-657d-43fc-aa0f-e8966f5179d0</name>
+</trkpt>
+<trkpt lat="49.792831" lon="9.93876">
+<name>032361ab-1abd-4d2e-b05b-f55ed8ab4512</name>
+</trkpt>
+<trkpt lat="49.792208" lon="9.938432">
+<name>03141bd9-de89-44ef-aa88-9e39e2153beb</name>
+</trkpt>
+<trkpt lat="49.791683" lon="9.938716">
+<name>3e283b9d-45c7-4214-bf44-2188d36f2c84</name>
+</trkpt>
+<trkpt lat="49.792278" lon="9.937971">
+<name>e0f25454-a2c8-4b04-bed0-09c3e09a78e7</name>
+</trkpt>
+<trkpt lat="49.789965" lon="9.920943">
+<name>cc73956d-127e-46db-acd1-add7a8b5e904</name>
+</trkpt>
+<trkpt lat="49.79271" lon="9.918432">
+<name>4617f54e-a1c8-4ea6-9749-c88c642571ec</name>
+</trkpt>
+<trkpt lat="49.792617" lon="9.914638">
+<name>0201013d-991f-482c-af66-3cf93e288291</name>
+</trkpt>
+<trkpt lat="49.800546" lon="9.879849">
+<name>0428a1a7-c12a-4faf-a594-2767c03c5755</name>
+</trkpt>
+<trkpt lat="49.801281" lon="9.878804">
+<name>f22fc64c-b416-4a5d-afe8-5b5f825f597f</name>
+</trkpt>
+<trkpt lat="49.802051" lon="9.877743">
+<name>77e8a0ba-1ee5-4949-957e-500fd54d1867</name>
+</trkpt>
+<trkpt lat="49.802028" lon="9.936427">
+<name>83ab6074-1167-4687-b57a-fc6248a09771</name>
+</trkpt>
+<trkpt lat="49.802028" lon="9.936427">
+<name>9034a045-4f19-4354-b10d-c602bbf77d2a</name>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>

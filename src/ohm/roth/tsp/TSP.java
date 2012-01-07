@@ -6,7 +6,13 @@ import ohm.roth.distance;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Klasse zur "loesung" des TSP
+ */
 public class TSP {
+    /**
+     * Enum zu Identifikation der Loesungsansaetze
+     */
     public static enum tspType {
         GENETIC_QUICK,
         GENETIC_MED,
@@ -15,6 +21,12 @@ public class TSP {
         CLOSEST_NEIGHBOR
     }
 
+    /**
+     * "Loest" das TSP anhand einer Liste von Wegpunkten
+     * @param places Liste der Wegpunkte
+     * @param typ Der zu verwendendte Loesungsansatz
+     * @return Die Liste der Wegpunkte in der Reihenfolge eines Rundweges
+     */
     static public List<Waypoint> sort(List<Waypoint> places, tspType typ) {
         switch (typ) {
             case CLOSEST_NEIGHBOR:
@@ -32,7 +44,12 @@ public class TSP {
         }
     }
 
-    static private List<Waypoint> closestNeighbor(List<Waypoint> places) throws IllegalArgumentException {
+    /**
+     * Loesungsansatz closestNeighbor
+     * @param places Liste der Wegpunkte
+     * @return Sortierte Liste der Wegpunkte
+     */
+    static private List<Waypoint> closestNeighbor(List<Waypoint> places) {
         List<Waypoint> workingCopy = new ArrayList<Waypoint>();
         List<Waypoint> orderdPlaces = new ArrayList<Waypoint>();
         workingCopy.addAll(places);
@@ -56,53 +73,6 @@ public class TSP {
         return orderdPlaces;
     }
 
-    private static void testPath(List<Waypoint> best, List<Waypoint> source, List<Waypoint> curr, Waypoint start) {
-
-        if (curr.size() == (source.size() + 1) && best.size() != (source.size() + 1)) {
-            best.addAll(curr);
-            return;
-        }
-        // neuer bester pfasd
-        if (curr.size() == (source.size() + 1) && best.size() == (source.size() + 1) && distance.distanceList(best) > distance.distanceList(curr)) {
-            best.clear();
-            best.addAll(curr);
-            return;
-        }
-
-        if (distance.distanceList(best) < distance.distanceList(curr)) {
-            return;
-        }
-        if (curr.size() == source.size()) {
-            curr.add(start);
-            testPath(best, source, curr, start);
-        }
-
-        for (Waypoint currWaypoint : source) {
-            if (curr.contains(currWaypoint)) {
-                continue;
-            }
-            List<Waypoint> newCurr = new ArrayList<Waypoint>();
-            newCurr.addAll(curr);
-            newCurr.add(currWaypoint);
-            testPath(best, source, newCurr, start);
-        }
-    }
-
-    static private List<Waypoint> bruteForce(List<Waypoint> places) throws IllegalArgumentException {
-        if (places.size() > 5) {
-            throw new IllegalArgumentException("Size > 5 (" + places.size() + ")");
-        }
-        List<Waypoint> workingCopy = new ArrayList<Waypoint>();
-        workingCopy.addAll(places);
-        List<Waypoint> bestPlaces = new ArrayList<Waypoint>();
-        for (Waypoint currTest : places) {
-            List<Waypoint> curr = new ArrayList<Waypoint>();
-            curr.add(currTest);
-            testPath(workingCopy, places, curr, currTest);
-        }
-        return bestPlaces;
-    }
-
     static private List<Waypoint> geneticAlgoQuick(List<Waypoint> places) {
         return geneticAlgoPara(places, 20, 100, 1);
     }
@@ -115,6 +85,14 @@ public class TSP {
         return geneticAlgoPara(places, 100, 20000, 0);
     }
 
+    /**
+     * Genetischer Loesungsansatz
+     * @param places Liste der Wegpunkte
+     * @param populationSize Populationsgroesse
+     * @param generations Anzahl der zu berechnenden Generationen
+     * @param randomMutations Auswahl der mutationsart
+     * @return Die Sortierte Liste der Wegpunkte
+     */
     static public List<Waypoint> geneticAlgoPara(List<Waypoint> places, int populationSize, int generations, int randomMutations) {
         // Generiere distance Array
         double[][] distances = new double[places.size()][places.size()];

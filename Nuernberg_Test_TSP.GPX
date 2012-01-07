@@ -1,0 +1,64 @@
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="test2" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata>
+<name>FOO</name>
+</metadata>
+<trk>
+<name/>
+<trkseg>
+<trkpt lat="49.44643333" lon="11.08192167">
+<name>e1935123-609e-4b8f-ac73-beb6a1928f9d</name>
+</trkpt>
+<trkpt lat="49.45099333" lon="11.07872833">
+<name>fe476d63-80cb-4957-94fb-7063e85d96bf</name>
+</trkpt>
+<trkpt lat="49.45278833" lon="11.07800167">
+<name>e1c51955-c236-49be-a7e9-ff7cb002078d</name>
+</trkpt>
+<trkpt lat="49.45281167" lon="11.07682">
+<name>d253ad6b-aa39-4b1d-bc51-926e2855edb5</name>
+</trkpt>
+<trkpt lat="49.45384833" lon="11.07734167">
+<name>30a47c6d-563b-4cce-a8d1-23438050b64e</name>
+</trkpt>
+<trkpt lat="49.45407" lon="11.07822167">
+<name>cb508944-89ab-4240-b505-10197dd8cbe6</name>
+</trkpt>
+<trkpt lat="49.45531667" lon="11.07643667">
+<name>90182f67-80b8-4310-bd8f-af96051a0392</name>
+</trkpt>
+<trkpt lat="49.45767333" lon="11.076545">
+<name>3d40eedb-820e-4329-836d-54a82b44765c</name>
+</trkpt>
+<trkpt lat="49.45849" lon="11.07482667">
+<name>abcb5976-d6e7-4ebc-9198-052c763cd43c</name>
+</trkpt>
+<trkpt lat="49.45712667" lon="11.07395">
+<name>47165348-082d-40b4-afa1-b182a18cf0ef</name>
+</trkpt>
+<trkpt lat="49.45617667" lon="11.07152333">
+<name>ca2aa67c-2c9f-4e8f-b814-07809490fc00</name>
+</trkpt>
+<trkpt lat="49.45416" lon="11.07088167">
+<name>57aa0a75-e7cd-4068-9d85-7b4c4466b776</name>
+</trkpt>
+<trkpt lat="49.45381667" lon="11.07327667">
+<name>948206a7-b5f8-4cad-86d1-ca82e7baa827</name>
+</trkpt>
+<trkpt lat="49.45303" lon="11.07296667">
+<name>3f40ba8f-e65c-4bd4-85fd-e200bcdbed9c</name>
+</trkpt>
+<trkpt lat="49.45309667" lon="11.07457667">
+<name>0751b7b7-71e2-43c9-8b2d-0681d60232d6</name>
+</trkpt>
+<trkpt lat="49.44784167" lon="11.07534833">
+<name>b2c8552f-bd89-4994-acd0-61c8f4fc265e</name>
+</trkpt>
+<trkpt lat="49.44643333" lon="11.08192167">
+<name>845702a5-2981-42d1-b42f-45373136703e</name>
+</trkpt>
+<trkpt lat="49.44643333" lon="11.08192167">
+<name>89b3b98e-5e83-463b-94c2-092e05202f76</name>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>

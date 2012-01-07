@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * User: mischarohlederer
- * Date: 22.12.11
- * Time: 09:42
+ * Klasse mit verschiedenen Statischen Funktionen fuer Zufallswerte
  */
 public class random {
     private static Random rnd = new Random();
@@ -21,7 +19,7 @@ public class random {
     }
 
     /**
-     * Generiert eine Zufällige Double Zahl zwischen 2 gegeben Werten
+     * Generiert eine Zufaellige Double Zahl zwischen 2 gegeben Werten
      * @param min Die untergrenze
      * @param max Die obergrenze
      * @return Die Zufallszahl
@@ -31,7 +29,7 @@ public class random {
     }
 
     /**
-     * Generiert eine zufällige Position
+     * Generiert eine zufaellige Position
      * @return Die Generierte Position
      */
     public static Position position() {
@@ -39,7 +37,7 @@ public class random {
     }
 
     /**
-     * Genertiert eine Liste von n Zufälligen Wegpunkten
+     * Genertiert eine Liste von n Zufaelligen Wegpunkten
      * @param count Anzahl der zu generierenden Wegpunkte
      * @return Liste der generierten Wegpunkte
      */

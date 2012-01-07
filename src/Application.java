@@ -14,10 +14,9 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * User: mischarohlederer
- * Date: 27.10.11
- * Time: 11:51
+ * Klasse die den Programmablauf steuert
  */
+
 @SuppressWarnings({"ConstantConditions"})
 public class Application {
     static Scanner scan = new Scanner(System.in);
@@ -33,21 +32,23 @@ public class Application {
     static String graphname;
     static String boundingBoxFile;
     static String lsiWeightsFilename = "lsi_foot.csv";
+    static int defaultW = 1;
+    static double defaultDoubleEdgeFactor = 20;
 
     static TSP.tspType defaultTspType = TSP.tspType.GENETIC_GOOD;
     static HashMap<String, Double> lsiWeights;
 
     /**
-     * Ausgabe des Hauptmenüs
+     * Ausgabe des Hauptmenues
      */
-    static void mainMenu() {
+    public static void mainMenu() {
         System.out.println("============================================================");
         System.out.println("Roth LBS Aufgabe 2011");
         System.out.println("Fuchs Daniel, Rohlederer Mischa");
         System.out.println("============================================================");
         System.out.println();
-        AStarAlgorithm.defaultW = 1;
-        AStarAlgorithm.visitedW = 20;
+        AStarAlgorithm.defaultW = Application.defaultW;
+        AStarAlgorithm.visitedW = Application.defaultDoubleEdgeFactor;
 
 
         // Default Graph
@@ -76,8 +77,7 @@ public class Application {
             System.out.println("[1] Build Path");
             System.out.println("[2] Benchmarks");
             System.out.println("[3] Graph");
-            System.out.println("[4] Test Aufgabe Bamberg");
-            System.out.println("[5] Test Aufgabe Wuerzburg");
+            System.out.println("[4] Scriting");
             System.out.println("[0] exit");
             System.out.print("Select: ");
             int menu = scan.nextInt();
@@ -93,9 +93,9 @@ public class Application {
                     break;
                 case 4:
                     try {
-                        testAufgaben("01.foo");
+                        scriptMenu();
                     } catch (Exception e) {
-                        System.out.println("Error running Script :(");
+                        System.out.println("Error running Script1");
                     }
                     break;
                 case 0:
@@ -108,9 +108,9 @@ public class Application {
     }
 
     /**
-     * Ausgabe des Menüs um einen Pfad zu suchen
+     * Ausgabe des Menues um einen Pfad zu suchen
      */
-    static void pathMenu() {
+    public static void pathMenu() {
         boolean quit = false;
         do {
             System.out.println("==================================================");
@@ -120,12 +120,13 @@ public class Application {
             System.out.println("Please Make a selection:");
             System.out.println("[1] Standard");
             System.out.println("[2] Reduce Double Edges");
-            System.out.println("[3] Reduce Double Edges & and use LSI Weights");
+            System.out.println("[3] Reduce Double Edges & use LSI Weights");
             System.out.println("[0] back");
             System.out.print("Selection: ");
             int menu = scan.nextInt();
             String name, filename;
             double w;
+            int limit;
             switch (menu) {
                 case 1:
                     System.out.print("Name: ");
@@ -134,7 +135,13 @@ public class Application {
                     filename = scan.next();
                     System.out.print("W: ");
                     w = scan.nextDouble();
-                    Application.findPath(filename, name, w, true, false, false);
+                    System.out.print("Open List Limit: ");
+                    limit = scan.nextInt();
+                    try {
+                        Application.findPath(filename, name, w, limit, true, true, false);
+                    } catch (Exception e) {
+                        System.out.println("Error running A-Star: " + e.getMessage());
+                    }
                     break;
                 case 2:
                     System.out.print("Name: ");
@@ -143,7 +150,13 @@ public class Application {
                     filename = scan.next();
                     System.out.print("W: ");
                     w = scan.nextDouble();
-                    Application.findPath(filename, name, w, true, true, false);
+                    System.out.print("Open List Limit: ");
+                    limit = scan.nextInt();
+                    try {
+                        Application.findPath(filename, name, w, limit, true, true, false);
+                    } catch (Exception e) {
+                        System.out.println("Error running A-Star: " + e.getMessage());
+                    }
                     break;
                 case 3:
                     System.out.print("Name: ");
@@ -152,7 +165,13 @@ public class Application {
                     filename = scan.next();
                     System.out.print("W: ");
                     w = scan.nextDouble();
-                    Application.findPath(filename, name, w, true, true, true);
+                    System.out.print("Open List Limit: ");
+                    limit = scan.nextInt();
+                    try {
+                        Application.findPath(filename, name, w, limit, true, true, true);
+                    } catch (Exception e) {
+                        System.out.println("Error running A-Star: " + e.getMessage());
+                    }
                     break;
                 case 0:
                     quit = true;
@@ -167,14 +186,16 @@ public class Application {
     /**
      * Sucht einen Rundweg zu Coordinaten aus einer angegebenen CSV Datei und gib Informationen zum gefundenen Pfad aus
      *
-     * @param filename          Dateiname für die CSV Datei mit den Coordinaten
-     * @param name              Name für den Pfad
-     * @param w                 overdo Fakor für A-Stern
+     * @param filename          Dateiname fuer die CSV Datei mit den Coordinaten
+     * @param name              Name fuer den Pfad
+     * @param w                 overdo Fakor fuer A-Stern
+     * @param limit             Limit der Openliste
      * @param loop              Gibt  an ob ein Rundweg erstellt werden soll
      * @param reduceDoubleEdges Gibt an ob bereits besuchte Kanten schlechter Bewertet werden sollen
      * @param weightedLsi       Gib an ob bestimmte LSI-Klassen anders bewertet werden sollen
+     * @throws Exception        IO Fehler
      */
-    public static void findPath(String filename, String name, double w, boolean loop, boolean reduceDoubleEdges, boolean weightedLsi) {
+    public static void findPath(String filename, String name, double w, int limit, boolean loop, boolean reduceDoubleEdges, boolean weightedLsi) throws Exception {
         Application.println("==================================================");
         Application.println("Finding Path");
         Application.println("Filename: " + filename);
@@ -187,8 +208,7 @@ public class Application {
         try {
             waypoints = CSV.readWaypointList(filename);
         } catch (Exception e) {
-            e.printStackTrace();
-            return;
+            throw new Exception("Waypoint File not found");
         }
         if (waypoints.size() == 0) return;
         List<Waypoint> orderdWaypoints;
@@ -245,7 +265,7 @@ public class Application {
                     Node start = waynotes[i];
                     Node end = waynotes[(i + 1) % (orderdWaypoints.size())];
                     String segmentName = orderdWaypoints.get(i).getName() + " - " + orderdWaypoints.get((i + 1) % (orderdWaypoints.size())).getName();
-                    AStarResult result = AStarAlgorithm.search(graph, start, end, segmentName, w, 0, Application.lsiWeights, weightedLsi, visitedEdges, reduceDoubleEdges);
+                    AStarResult result = AStarAlgorithm.search(graph, start, end, segmentName, w, limit, Application.lsiWeights, weightedLsi, visitedEdges, reduceDoubleEdges);
                     result.print();
 
                     PathSegment segment = result.getPath();
@@ -263,7 +283,13 @@ public class Application {
                 Node start = waynotes[0];
                 Node end = waynotes[1];
                 String segmentName = orderdWaypoints.get(0).getName() + " - " + orderdWaypoints.get(1).getName();
-                AStarResult result = AStarAlgorithm.search(graph, start, end, segmentName, w, 0, Application.lsiWeights, weightedLsi, visitedEdges, reduceDoubleEdges);
+                AStarResult result = AStarAlgorithm.search(graph, start, end, segmentName, w, limit, Application.lsiWeights, weightedLsi, visitedEdges, reduceDoubleEdges);
+                FileWriter fstream = new FileWriter(new File(name + "_Exp.txt"));
+                BufferedWriter out = new BufferedWriter(fstream);
+                out.write(DORENDABuilder.build(result, graph));
+                out.close();
+                fstream.close();
+
                 result.print();
                 PathSegment segment = result.getPath();
                 segment.setStartWaypoint(orderdWaypoints.get(0));
@@ -323,9 +349,9 @@ public class Application {
     }
 
     /**
-     * Gibt das Benchmarks menü aus
+     * Gibt das Benchmarks menue aus
      */
-    static void benchmarkMenu() {
+    public static void benchmarkMenu() {
         List<Position> places = new ArrayList<Position>();
         places.add(new Position(-10.99845000, 49.39349500));
         places.add(new Position(-11.18493167, 49.49496333));
@@ -392,12 +418,12 @@ public class Application {
     /**
      * Vergleicht A-Stern mit einem bereich von OverDo Faktoren
      *
-     * @param places Testpunke für den Benchmark
+     * @param places Testpunke fuer den Benchmark
      * @param start  Statr OverDo Faktor
      * @param end    End OverDo Faktor
      * @param step   Inkrementschritte
      */
-    static void compareAStarW(List<Position> places, double start, double end, double step) {
+    public static void compareAStarW(List<Position> places, double start, double end, double step) {
         if (end < start) {
             double tmp = end;
             end = start;
@@ -436,7 +462,7 @@ public class Application {
                 out.close();
                 fstream.close();
                 System.out.println("Result for w=" + curr);
-                System.out.println("Expanded Nodes: " + result.getExpandedNodes() + " (" + (result.getExpandedNodesCount() - compareResult.getExpandedNodesCount()) + ")");
+                System.out.println("Expanded Nodes: " + result.getExpandedNodesCount() + " (" + (result.getExpandedNodesCount() - compareResult.getExpandedNodesCount()) + ")");
                 System.out.println("Path Length: " + result.getPath().getLength() + " (" + (result.getPath().getLength() - compareResult.getPath().getLength()) + ")");
                 System.out.println("SortTime: " + result.getSorttime() + " (" + (result.getSorttime() - compareResult.getSorttime()) + ")");
                 System.out.println("Runtime: " + result.getRuntime() + " (" + (result.getRuntime() - compareResult.getRuntime()) + ")");
@@ -448,14 +474,14 @@ public class Application {
     }
 
     /**
-     * Vergleicht A-Stern mit einem bereich von Limits für die Open Liste
+     * Vergleicht A-Stern mit einem bereich von Limits fuer die Open Liste
      *
-     * @param places Testpunke für den Benchmark
+     * @param places Testpunke fuer den Benchmark
      * @param start  Statr Limit
      * @param end    End Limit
      * @param step   Inkrementschritte
      */
-    static void compareAStarLimitedOpen(List<Position> places, int start, int end, int step) {
+    public static void compareAStarLimitedOpen(List<Position> places, int start, int end, int step) {
         if (end < start) {
             int tmp = end;
             end = start;
@@ -493,7 +519,7 @@ public class Application {
                 out.close();
                 fstream.close();
                 System.out.println("Result for w=" + curr);
-                System.out.println("Expanded Nodes: " + result.getExpandedNodes() + " (" + (result.getExpandedNodesCount() - compareResult.getExpandedNodesCount()) + ")");
+                System.out.println("Expanded Nodes: " + result.getExpandedNodesCount() + " (" + (result.getExpandedNodesCount() - compareResult.getExpandedNodesCount()) + ")");
                 System.out.println("Path Length: " + result.getPath().getLength() + " (" + (result.getPath().getLength() - compareResult.getPath().getLength()) + ")");
                 System.out.println("SortTime: " + result.getSorttime() + " (" + (result.getSorttime() - compareResult.getSorttime()) + ")");
                 System.out.println("Runtime: " + result.getRuntime() + " (" + (result.getRuntime() - compareResult.getRuntime()) + ")");
@@ -509,7 +535,7 @@ public class Application {
      *
      * @param points anzahl der Punkte
      */
-    static void compareTSP(int points) {
+    public static void compareTSP(int points) {
         List<Waypoint> waypoints;
         List<Waypoint> orderdWaypoints;
         System.out.println("==================================================");
@@ -547,12 +573,12 @@ public class Application {
     /**
      * Vergleicht den Genetischen Algo. fuer den TSP mit einem Intervall von Generationen
      *
-     * @param points Testpunke für den Benchmark
+     * @param points Testpunke fuer den Benchmark
      * @param start  Start Generationen Anzahl
      * @param end    End Generationen Anzahl
      * @param step   Inkrementschritte
      */
-    static void compareGeneticGens(int points, int start, int end, int step) {
+    public static void compareGeneticGens(int points, int start, int end, int step) {
         List<Waypoint> waypoints;
         List<Waypoint> orderdWaypoints;
         System.out.println("==================================================");
@@ -591,7 +617,7 @@ public class Application {
     /**
      * Graph Menue
      */
-    static void graphMenu() {
+    public static void graphMenu() {
         boolean quit = false;
         do {
             System.out.println("==================================================");
@@ -616,7 +642,7 @@ public class Application {
                     System.out.print("Filename: ");
                     file = scan.next();
                     try {
-                        graph.dumpGraph(file);
+                        dumpString(file, DORENDABuilder.build(graph, true, false));
                     } catch (IOException e) {
                         System.out.println("Error while writing File (" + e.getMessage() + ")");
                     }
@@ -629,7 +655,7 @@ public class Application {
                 case 4:
                     System.out.print("Graphname: ");
                     name = scan.next();
-                    System.out.print("Boundingbox File: ");
+                    System.out.print("BoundingBoxFile: ");
                     file = scan.next();
                     loadGraph_Database(file, name);
                     break;
@@ -646,7 +672,7 @@ public class Application {
     /**
      * Ausgabe der Graphinformationen
      */
-    static void graphInformation() {
+    public static void graphInformation() {
         System.out.println("==================================================");
         System.out.println("Graph Information");
         System.out.println("==================================================");
@@ -670,8 +696,9 @@ public class Application {
      *
      * @param filename Dateiname
      */
-    static void loadGraph_File(String filename) {
+    public static void loadGraph_File(String filename) {
         // Graph aus Datei laden
+        Application.graph = null;
         double time_graph = System.currentTimeMillis();
         filename = filename + ".DAT";
         Application.println("============================================================");
@@ -697,8 +724,6 @@ public class Application {
             Application.println("============================================================");
         } catch (Exception e) {
             Application.println("Error: " + e.toString());
-            e.printStackTrace();
-            System.exit(1);
         }
     }
 
@@ -708,7 +733,8 @@ public class Application {
      * @param bBoxFile Dateiname der Datei in der die Bereichskoordinaten
      * @param name     Name des Graphen
      */
-    static void loadGraph_Database(String bBoxFile, String name) {
+    public static void loadGraph_Database(String bBoxFile, String name) {
+        Application.graph = null;
         Position[] boundingBox;
         try {
             boundingBox = CSV.readPositionArray(bBoxFile);
@@ -724,7 +750,7 @@ public class Application {
      * @param bBox Array der Bereichskoordinaten
      * @param name Graphname
      */
-    static void loadGraph_Database(Position[] bBox, String name) {
+    public static void loadGraph_Database(Position[] bBox, String name) {
         // Graph aus Datei laden
         double time_graph = System.currentTimeMillis();
         System.out.println("============================================================");
@@ -763,16 +789,63 @@ public class Application {
      *
      * @param line Der auszugebende String
      */
-    static void println(String line) {
+    public static void println(String line) {
         if (verbose) System.out.println(line);
     }
 
     /**
-     * Script für die Testaufgaben
-     *
-     * @param filename Dateiname für das Script
+     * Scripting Menue
+     * @throws Exception IO Fehler
      */
-    static void testAufgaben(String filename) throws Exception {
+    public static void scriptMenu() throws Exception{
+        boolean quit = false;
+        do {
+            System.out.println("==================================================");
+            System.out.println("Scripting Menu");
+            System.out.println("==================================================");
+            System.out.println();
+            System.out.println("Please Make a selection:");
+            System.out.println("[1] Testaufgabe Bamberg");
+            System.out.println("[2] Testaufgabe Wuerzburg");
+            System.out.println("[3] Testaufgabe Nuernberg");
+            System.out.println("[4] Load Script from File");
+            System.out.println("[0] exit");
+
+            System.out.print("Selection: ");
+            int menu = scan.nextInt();
+            String name, file;
+            switch (menu) {
+                case 1:
+                    loadScript("Bamberg.foo");
+                    break;
+                case 2:
+                    loadScript("Wuerzburg.foo");
+                    break;
+                case 3:
+                    loadScript("Nuernberg.foo");
+                    break;
+                case 4:
+                    System.out.print("Filename: ");
+                    name = scan.next();
+                    loadScript(name);
+                    break;
+                case 0:
+                    quit = true;
+                    break;
+                default:
+                    System.out.println("Invalid Entry!");
+            }
+        }
+        while (!quit);
+    }
+
+    /**
+     * Bearbeitet ein "Script"
+     *
+     * @param filename Dateiname fuer das Script
+     * @throws Exception IO Fehler
+     */
+    public static void loadScript(String filename) throws Exception {
         File scriptFile = new File(filename);
         if (!scriptFile.exists()) {
             System.out.println("Scriptfile not found");
@@ -786,25 +859,24 @@ public class Application {
             if (tokens[0].toUpperCase().equals("PRINT")) {
                 System.out.println(tokens[1]);
             } else if (tokens[0].toUpperCase().equals("LOADFILE")) {
+                if (!Application.graph.getName().toLowerCase().equals(tokens[1].toLowerCase())) {
+
                 File file = new File(tokens[1] + ".DAT");
                 if (file.exists()) {
                     Application.loadGraph_File(tokens[1]);
                 }
+                }
             } else if (tokens[0].toUpperCase().equals("PATH")) {
                 String pathPara[] = tokens[1].split(" ");
-                boolean loop = false;
-                boolean reduce = false;
-                boolean lsi = false;
-                if (pathPara[3].equals("1")) {
-                    loop = true;
+                boolean reduce = true;
+                boolean lsi = true;
+                if (pathPara[4].equals("0")) {
+                    reduce = false;
                 }
-                if (pathPara[4].equals("1")) {
-                    reduce = true;
+                if (pathPara[5].equals("0")) {
+                    lsi = false;
                 }
-                if (pathPara[5].equals("1")) {
-                    lsi = true;
-                }
-                findPath(pathPara[0], pathPara[1], Double.parseDouble(pathPara[2]), loop, reduce, lsi);
+                findPath(pathPara[0], pathPara[1], Double.parseDouble(pathPara[2]), Integer.parseInt(pathPara[3]),  true, reduce, lsi);
             } else if (tokens[0].equals("//")) {
 
             } else if (tokens[0].toUpperCase().equals("DORENDA")) {
@@ -815,6 +887,19 @@ public class Application {
             }
 
         }
+    }
+
+    /**
+     * Schreibt einen String in eine Datei
+     * @param filename Der Dateiname
+     * @param s Der zu schreibende String
+     * @throws IOException Fehler beim schreiben der Datei
+     */
+    public static void dumpString(String filename, String s) throws IOException {
+        FileWriter fstream = new FileWriter(filename);
+        BufferedWriter out = new BufferedWriter(fstream);
+        out.write(s);
+        out.close();
     }
 
 }

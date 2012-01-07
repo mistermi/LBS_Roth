@@ -3,21 +3,30 @@ package ohm.roth.tsp;
 import java.util.Random;
 
 /**
- * User: mischarohlederer
- * Date: 14.11.11
- * Time: 11:44
+ * Beschreibung eines Rundweges fuer den Genetisch Algo fuer das TSP
  */
 public class GeneticPath implements Comparable<GeneticPath> {
     static double[][] distances;
     static Random random;
     static int length;
+    static int randomMutations = 0;
 
+    /**
+     * Bestimmt die art der zu verwendeten Mutationen
+     * n: Mutation Nummer n
+     * 0: Zufaellig
+     * @param randomMutations Die art der Mutationen
+     */
     public static void setRandomMutations(int randomMutations) {
         GeneticPath.randomMutations = randomMutations;
     }
 
-    static int randomMutations = 0;
-
+    /**
+     * Initialisiert die Klasse mit neuen Kosten
+     * @param d 2 Diminsionales Array [i][j] das jeweils die Kosten zwischen 2 Punkten i und j angiebt
+     * @param n Anzahl der Punkte
+     * @param seed Seed fuer den Zufallszahlen generator
+     */
     public static void init(double[][] d, int n, long seed) {
         GeneticPath.distances = d;
         GeneticPath.random = new Random(seed);
@@ -26,31 +35,45 @@ public class GeneticPath implements Comparable<GeneticPath> {
 
     public int[] path;
 
+    /**
+     * Konstruktor fuer ein neues Objekt
+     */
     GeneticPath() {
-        // constructor
         path = new int[length];
     }
 
+    /**
+     * Kopier Konstruktor
+     * @param p Der zu kopierende Pfad
+     */
     GeneticPath(GeneticPath p) {
-        // copy constructor
         this();
         System.arraycopy(p.path, 0, path, 0, length);
     }
 
+    /**
+     * Vertauscht 2 Werte aus einem int Array
+     * @param a Das Array
+     * @param i Der erste Wert
+     * @param j Der zweite Wert
+     */
     void swap(int[] a, int i, int j) {
         int tmp = a[i];
         a[i] = a[j];
         a[j] = tmp;
     }
 
-    int randomInt(int x) {
-        return random.nextInt(x);
-    }
-
+    /**
+     * Auswahl eines Zufaelligen Wegpunktes
+     * @return Die ID eines Zufaelligen Wegpunktes
+     */
     int randomWaypoint() {
-        return randomInt(length);
+        return random.nextInt(length);
     }
 
+    /**
+     * Initialisiert den Pfad mit einer Zufaelligen Loesung
+     */
     void initRandomPath() {
         for (int i = 0; i < length; i++)
             path[i] = i + 1;
@@ -59,6 +82,10 @@ public class GeneticPath implements Comparable<GeneticPath> {
             swap(path, i, randomWaypoint());
     }
 
+    /**
+     * Giebt eine Mutation des aktuellen Pfades zurueck
+     * @return Der Mutierte Pfad
+     */
     GeneticPath mutate() {
         if (randomMutations != 0) {
             // random mutation
@@ -71,7 +98,7 @@ public class GeneticPath implements Comparable<GeneticPath> {
                     return mutateSwap();
             }
         } else {
-            int rnd = randomInt(1) + 1;
+            int rnd = random.nextInt(1) + 1;
             switch (rnd) {
                 case 1:
                     return mutateSwap();
@@ -83,26 +110,29 @@ public class GeneticPath implements Comparable<GeneticPath> {
         }
     }
 
-
-    //Mutationen
-
-    // Swap
-    // vertauscht 2 Waypoints
+   /**
+     * Swap Mutation
+     * Vertauscht 2 Wegpunkte innerhalb des Pfades
+     * @return Der Mutierte Pfad
+     */
     GeneticPath mutateSwap() {
         GeneticPath mutant = new GeneticPath(this);
-        int mut1 = randomInt(length);
-        int mut2 = randomInt(length);
+        int mut1 = random.nextInt(length);
+        int mut2 = random.nextInt(length);
         swap(mutant.path, mut1, mut2);
         return mutant;
     }
 
-    // Subpath
-    // Ändert die reihenvolge eines teiles der reihenfolge
+    /**
+     * Subpath Mutation
+     * Aendert die Reihenfolge eines Teilpfades innerhalb des Pfades
+     * @return Der Mutierte Pfad
+     */
     GeneticPath mutateSubpath() {
         GeneticPath mutant = new GeneticPath(this);
-        int len = randomInt(length - 2) + 2;
-        int start = randomInt(length - len);
-        int newPos = randomInt(length - len);
+        int len = random.nextInt(length - 2) + 2;
+        int start = random.nextInt(length - len);
+        int newPos = random.nextInt(length - len);
 
         for (int i = 0, end = len - 1; i < len; i++, end--) {
             mutant.path[start + end] = path[newPos + i];
@@ -115,12 +145,15 @@ public class GeneticPath implements Comparable<GeneticPath> {
         return mutant;
     }
 
-    // Kombiniert Waypoint Liste von M&D
-    // Bis zu einen zufälligen Punkt werden die Waypoints von M übernommen
-    // Die Restlichen werden in der Reihenfolge von D angehängt
+    /**
+     * Verbindest diesen und einen anderen Angegeben Pfad zu einem neuen
+     * Aus diesem Pfad wird die Reihenfolge der ersten n (n: Zufaellig) Wegpunkte uebernommen. Die Reihenfolge der restlichen wird aus dem 2. Pfad uebernommen
+     * @param D Der 2. Pfad
+     * @return Der Zusammengefuehrte Pfad
+     */
     GeneticPath breed(GeneticPath D) {
         GeneticPath M = this;
-        int crossoverPoint = randomInt(length - 2) + 1;
+        int crossoverPoint = random.nextInt(length - 2) + 1;
         GeneticPath baby = new GeneticPath();
 
         // Anteil von M
@@ -148,7 +181,11 @@ public class GeneticPath implements Comparable<GeneticPath> {
         return baby;
     }
 
-    // Vergleiche 2 Pathes
+    /**
+     * Prueft ob 2 Pfade gleich sind
+     * @param other Der zu pruefende Pfad
+     * @return true | false
+     */
     public boolean equals(Object other) {
         if (other instanceof GeneticPath) {
             int[] p = ((GeneticPath) other).path;
@@ -162,6 +199,11 @@ public class GeneticPath implements Comparable<GeneticPath> {
         }
     }
 
+    /**
+     * Vergleicht 2 Pfade anhade der Kosten des durch sie beschriebenen Pfades
+     * @param other Der zu vergleichende Pfad
+     * @return Vergleichsrueckgabe
+     */
     public int compareTo(GeneticPath other) {
         if (getLength() < other.getLength())
             return -1;
@@ -170,7 +212,10 @@ public class GeneticPath implements Comparable<GeneticPath> {
         return 0;
     }
 
-    // Länge des Pathes
+    /**
+     * Giebt die Kosten des durch den Pfad beschriebenen Weges Zurueck
+     * @return Die Kosten
+     */
     double getLength() {
         double distance = 0;
 

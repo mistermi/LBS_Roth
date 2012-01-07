@@ -8,29 +8,64 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Beschreibt einen Weg bestehend aus mehreren Segmenten
+ */
 public class Path {
     protected String name;
     protected List<PathSegment> segments;
 
+    /**
+     * Konstruktor
+     *
+     * @param name Der Name der Weges
+     */
     public Path(String name) {
         this.segments = new ArrayList<PathSegment>();
         this.name = name;
     }
 
-    public String getName() { return name; }
-
-    public void setName(String name) { this.name = name; }
-
-    public List<PathSegment> getSegments() { return segments; }
-
-    public void setSegments(List<PathSegment> segments) {
-        this.segments = segments;
+    /**
+     * Gibt den Namen des Graphen zurueck
+     *
+     * @return Der Name
+     */
+    public String getName() {
+        return name;
     }
 
+    /**
+     * Aendert den namen des Graphen
+     *
+     * @param name Der neue Name des Graphen
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Gibt die Liste aller im Weg enthaltenen Segmenten zurueck
+     *
+     * @return Die Liste
+     */
+    public List<PathSegment> getSegments() {
+        return segments;
+    }
+
+    /**
+     * Fuegt dem Graphen ein neues Segment an
+     *
+     * @param segment Das anzufuegende Segment
+     */
     public void addSegment(PathSegment segment) {
         this.segments.add(segment);
     }
 
+    /**
+     * Gibt die Liste aller im Weg enthaltenen POIs zurueck
+     *
+     * @return Die Liste
+     */
     public List<Waypoint> getWaypoints() {
         List<Waypoint> retList = new ArrayList<Waypoint>();
         for (PathSegment seg : this.segments) {
@@ -40,6 +75,12 @@ public class Path {
         return retList;
     }
 
+    /**
+     * Gibt den Pfad als LineString zurueck
+     *
+     * @param includingWaypoints Gibt an ob der Weg zu den POIs im LineString enthalten soll
+     * @return Der Line String
+     */
     public LineString getGeoLineString(boolean includingWaypoints) {
         GeometryFactory fac = new GeometryFactory();
         List<Coordinate> coords = new ArrayList<Coordinate>();
@@ -54,6 +95,10 @@ public class Path {
             return fac.createLineString(new Coordinate[0]);
     }
 
+    /**
+     * Gibt den Pfad als LineString zurueck (nur die Topologischen Informationen)
+     * @return Der Line String
+     */
     public LineString getTopoLineString() {
         GeometryFactory fac = new GeometryFactory();
         List<Coordinate> coords = new ArrayList<Coordinate>();

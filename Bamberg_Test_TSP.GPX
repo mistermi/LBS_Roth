@@ -1,0 +1,76 @@
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="test2" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<metadata>
+<name>FOO</name>
+</metadata>
+<trk>
+<name/>
+<trkseg>
+<trkpt lat="49.900975" lon="10.899562">
+<name>644b9e57-1747-4fd3-83b4-83cb199d69b0</name>
+</trkpt>
+<trkpt lat="49.894297" lon="10.893343">
+<name>be2c0b5d-2999-417a-b498-6d71fe7b471d</name>
+</trkpt>
+<trkpt lat="49.893804" lon="10.891854">
+<name>b03601fb-394b-48fb-91e4-6babd48d3bb8</name>
+</trkpt>
+<trkpt lat="49.894655" lon="10.889527">
+<name>2c471748-1d15-4e0d-81a9-34183862b9f7</name>
+</trkpt>
+<trkpt lat="49.891505" lon="10.89226">
+<name>ec0e1b93-644a-49bb-8079-1f67f103b93a</name>
+</trkpt>
+<trkpt lat="49.879897" lon="10.908349">
+<name>afe5594e-0d7e-4e42-ac24-2b9c0d359503</name>
+</trkpt>
+<trkpt lat="49.890292" lon="10.891193">
+<name>96d1e516-a03e-43cb-afb2-1b161a02f40d</name>
+</trkpt>
+<trkpt lat="49.890782" lon="10.890971">
+<name>afe821ad-ff2f-4b2c-bf87-61d40cfcadf2</name>
+</trkpt>
+<trkpt lat="49.890626" lon="10.889082">
+<name>c050c096-2e9b-4f26-b5c0-89ffb491cda6</name>
+</trkpt>
+<trkpt lat="49.891626" lon="10.889549">
+<name>02c9fedf-2b81-46e3-93d3-c3f6303c3208</name>
+</trkpt>
+<trkpt lat="49.892143" lon="10.888399">
+<name>83e2d9f7-2f5e-415f-97db-3240f533dc90</name>
+</trkpt>
+<trkpt lat="49.891653" lon="10.88686">
+<name>6568adbd-bac1-4fa5-bf6c-78bb4ec2e72c</name>
+</trkpt>
+<trkpt lat="49.891081" lon="10.886143">
+<name>f12035df-0360-45d1-84e2-a9e5b3b5d294</name>
+</trkpt>
+<trkpt lat="49.891171" lon="10.883149">
+<name>c867b71b-6104-4d3e-baca-22920667957b</name>
+</trkpt>
+<trkpt lat="49.890867" lon="10.87766">
+<name>a17ab0a0-a3a2-4ba6-bacd-032e6bd29590</name>
+</trkpt>
+<trkpt lat="49.893632" lon="10.883799">
+<name>ccb4b8bc-899f-4474-8362-18e53cacea79</name>
+</trkpt>
+<trkpt lat="49.894574" lon="10.880399">
+<name>2bb7b63a-d1a6-448d-8f54-09eb075523b4</name>
+</trkpt>
+<trkpt lat="49.896405" lon="10.879299">
+<name>1b3ca833-a500-4514-84de-c0fdb405d427</name>
+</trkpt>
+<trkpt lat="49.897482" lon="10.877993">
+<name>09f34607-873a-4589-ba08-5741f616259b</name>
+</trkpt>
+<trkpt lat="49.899431" lon="10.885893">
+<name>bc22c144-42b6-4c77-9dc7-e24bd386bfbf</name>
+</trkpt>
+<trkpt lat="49.900975" lon="10.899562">
+<name>ea19ce81-83e3-41ac-ae6f-25797932f943</name>
+</trkpt>
+<trkpt lat="49.900975" lon="10.899562">
+<name>1985e96f-90a1-4eba-8ceb-b750674f90c5</name>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>

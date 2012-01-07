@@ -5,12 +5,11 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * User: mischarohlederer
- * Date: 07.11.11
- * Time: 11:43
+ * Beschreibung eines Segmentes eines Weges
  */
 public class PathSegment {
     protected Waypoint startWaypoint;
@@ -44,12 +43,12 @@ public class PathSegment {
     public List<Coordinate> getSegmentCoordinates(boolean includingWaypoints) {
         List<Coordinate> coords = new ArrayList<Coordinate>();
         PathNode currNode = this.getFirstNode();
-        if (includingWaypoints) coords.add(startWaypoint);
+        if (includingWaypoints) {
+            coords.add(startWaypoint);
+        }
         while (currNode != null) {
             if (currNode.getNextEdge() != null) {
-                for (Coordinate coord : currNode.getNextEdge().getEdgeGeo().getCoordinates()) {
-                    coords.add(coord);
-                }
+                Collections.addAll(coords, currNode.getNextEdge().getEdgeGeo().getCoordinates());
             }
             currNode = currNode.getNextNode();
         }

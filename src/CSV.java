@@ -10,11 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * User: mischarohlederer
- * Date: 26.10.11
- * Time: 13:08
+ * Klasse mit statischen Methode zum umgang mit CSV Datein
  */
 class CSV {
+    /**
+     * Liest eine POI Liste ein
+     * [name],lon,lat
+     * @param filename Zu lesende Datei
+     * @return Liste der eingelesenden POIs
+     * @throws Exception IO Fehler
+     */
     public static List<Waypoint> readWaypointList(String filename) throws Exception {
         List<Waypoint> retList = new ArrayList<Waypoint>();
         FileInputStream fis = new FileInputStream(filename);
@@ -30,20 +35,30 @@ class CSV {
                 name = strArr[0];
                 lon = Double.valueOf(strArr[1]);
                 lat = Double.valueOf(strArr[2]);
-            } else {
+                i++;
+                currWaypoint = new Waypoint(name, lon, lat);
+                retList.add(currWaypoint);
+            } else if (strArr.length == 2) {
                 name = "Punkt " + i;
                 lon = Double.valueOf(strArr[0]);
                 lat = Double.valueOf(strArr[1]);
+                i++;
+                currWaypoint = new Waypoint(name, lon, lat);
+                retList.add(currWaypoint);
             }
-            i++;
-            currWaypoint = new Waypoint(name, lon, lat);
-            retList.add(currWaypoint);
         }
         in.close();
         fis.close();
         return retList;
     }
 
+    /**
+     * Liest eine Liste mit Positionen ein
+     * lon,lat
+     * @param filename Zu lesende Datei
+     * @return Liste der Positionen
+     * @throws Exception IO Fehler
+     */
     public static Position[] readPositionArray(String filename) throws Exception {
         List<Position> retList = new ArrayList<Position>();
         FileInputStream fis = new FileInputStream(filename);
@@ -62,6 +77,12 @@ class CSV {
         return retList.toArray(new Position[retList.size()]);
     }
 
+    /**
+     * Liest Gewichtungen fuer LSI Klassen als Hashmap ein
+     * @param filename Zu lesende Datei
+     * @return Hashmap: String(LSIKlasse), Double(Gewichtung)
+     * @throws Exception IO Fehler
+     */
     public static HashMap<String, Double> readLSIWeight(String filename) throws Exception {
         HashMap<String, Double> retList = new HashMap<String, Double>();
         FileInputStream fis = new FileInputStream(filename);
@@ -77,22 +98,4 @@ class CSV {
         fis.close();
         return retList;
     }
-
-    public static void writeCSV(String filename, HashMap<String, String[]> map) throws Exception {
-	    FileWriter writer = new FileWriter(filename);
-        for (String key : map.keySet()) {
-            writer.append(key);
-
-            String[] val = map.get(key);
-            for (String curr : val) {
-                writer.append(',');
-                writer.append(curr);
-            }
-            writer.append('\n');
-            writer.flush();
-        }
-	    writer.close();
-    }
-
-
 }

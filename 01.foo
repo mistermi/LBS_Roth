@@ -1,6 +1,0 @@
-LOADFILE Wuerzburg
-PATH Wuerzburg_Aufgabe01.csv Wuerzburg_Test 1 1 0 0
-DORENDA Wuerzburg_Test_Geo.txt
-LOADFILE Bamberg
-PATH Bamberg_Aufgabe01.csv Bamberg_Test 1 1 0 0
-DORENDA Bamberg_Test_Geo.txt

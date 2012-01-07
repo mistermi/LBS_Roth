@@ -4,27 +4,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * User: mischarohlederer
- * Date: 12.12.11
- * Time: 12:24
+ * Klasse die ein Dorenda Dokument beschreibt
  */
 public class dorendaDocument {
     private List<dorendaLine> lines;
     private List<dorendaPoints> points;
 
+    /**
+     * Konstruktor eines Dorenda Dokuments
+     */
     public dorendaDocument() {
         lines = new ArrayList<dorendaLine>();
         points = new ArrayList<dorendaPoints>();
     }
 
+    /**
+     * Fuegt dem Dokument eine Line Hinzu
+     * @param line Die Linie
+     */
     public void addLine(dorendaLine line) {
         this.lines.add(line);
     }
 
+    /**
+     * Fuegt dem Dokument Punkte hinzu
+     * @param points Die Punkte
+     */
     public void addPoints(dorendaPoints points) {
         this.points.add(points);
     }
 
+    /**
+     * Ausgabe des Dokuments als String
+     * @return Das Dokument als String
+     */
     @Override
     public String toString() {
         if (lines.size() == 0 && points.size() == 0) return "";
